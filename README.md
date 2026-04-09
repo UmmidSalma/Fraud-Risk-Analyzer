@@ -88,4 +88,4 @@ window.runScan = async function() {
 
 - **Project Title:** AI-Based Real-Time Digital Payment Fraud & Risk Analyzer
 - **University:** KLE Technological University
-- **Program:** Cognizant Minor Project
+
