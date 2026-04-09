@@ -1,0 +1,242 @@
+/* =============================================
+   SENTINEL KINETIC — AI FRAUD DETECTOR SPA
+   css/style.css
+   ============================================= */
+
+/* RESET & ROOT */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --neon:    #00f5c8;
+  --neon2:   #00bfff;
+  --warn:    #ff6b35;
+  --danger:  #ff2d55;
+  --purple:  #a78bfa;
+  --bg:      #080d12;
+  --surface: #0d1520;
+  --surface2:#111d2b;
+  --border:  #1a3a5c;
+  --text:    #c8e6ff;
+  --muted:   #4a7a9b;
+  --green:   #00e676;
+}
+
+/* ---- VIEW TRANSITIONS (Attractive animations) ---- */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+}
+::view-transition-old(root) {
+  animation: fadeOut 0.2s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+::view-transition-new(root) {
+  animation: slideUpIn 0.35s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+/* Animations defined */
+@keyframes slideUpIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes glitch {
+  0%,94%,100%{clip-path:none;transform:none}
+  95%{clip-path:inset(20% 0 60% 0);transform:translateX(-3px)}
+  97%{clip-path:inset(60% 0 10% 0);transform:translateX(3px)}
+}
+@keyframes dotBlink { 0%,100%{opacity:1;box-shadow:0 0 8px var(--neon)} 50%{opacity:.3;box-shadow:none} }
+@keyframes scanRing {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes lockGlowPulse {
+  0%   { transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px var(--neon)) drop-shadow(0 0 20px var(--neon)) brightness(1.2); }
+  50%  { transform: translateY(-8px) scale(1.1); filter: drop-shadow(0 0 20px var(--neon)) drop-shadow(0 0 40px var(--neon)) drop-shadow(0 0 60px var(--neon)) brightness(1.8); }
+  100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px var(--neon)) drop-shadow(0 0 20px var(--neon)) brightness(1.2); }
+}
+
+/* ---- BACKGROUND GRAPHIC ---- */
+.bg-lock-graphic {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 90px;
+  height: 90px;
+  z-index: 100;
+  pointer-events: none;
+  color: var(--neon);
+  opacity: 1 !important;
+  animation: lockGlowPulse 2.5s ease-in-out infinite;
+}
+.bg-lock-graphic svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- BASE ---- */
+html { scroll-behavior: smooth; }
+body {
+  background-color: var(--bg);
+  font-family: 'Rajdhani', sans-serif;
+  color: var(--text); min-height: 100vh;
+  font-size: 15px; overflow-x: hidden; display: flex; flex-direction: column;
+}
+
+.container { max-width: 1000px; margin: 0 auto; padding: 24px; flex: 1; width:100%; }
+
+/* ---- HEADER ---- */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px; background: var(--surface);
+  border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 28px; }
+.logo { font-size: 18px; font-weight: 700; letter-spacing: 3px; color: #fff; animation: glitch 7s infinite; user-select: none; }
+.logo span { color: var(--neon); }
+.nav { display: flex; gap: 24px; }
+.nav-item { font-size: 13px; letter-spacing: 1.5px; color: var(--muted); cursor: pointer; padding: 4px 0; border-bottom: 2px solid transparent; transition: .2s; }
+.nav-item:hover { color: var(--text); }
+.nav-item.active { color: var(--neon); border-bottom-color: var(--neon); }
+
+.header-right { display: flex; align-items: center; gap: 16px; }
+.status-indicator { display: flex; align-items: center; gap: 7px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon); animation: dotBlink 1.5s infinite; }
+.status-text { font-size: 11px; letter-spacing: 1.5px; color: var(--neon); }
+.icon-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); transition: .2s; }
+.icon-btn:hover { color: var(--neon); border-color: var(--neon); }
+
+/* ---- SPA VIEWS ---- */
+.page-view {
+  display: none;
+}
+.page-view.active {
+  display: block;
+}
+
+/* ---- UTILITIES ---- */
+.mb-1 { margin-bottom: 1rem; }
+.mb-2 { margin-bottom: 2rem; }
+.mt-1 { margin-top: 1rem; }
+.neon { color: var(--neon) !important; }
+.blue { color: var(--neon2) !important; }
+.warn { color: var(--warn) !important; }
+.danger-c { color: var(--danger) !important; }
+.muted { color: var(--muted) !important; }
+
+/* ---- FORMS & AUTH ---- */
+.auth-card {
+  max-width: 400px; margin: 40px auto; padding: 30px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  position: relative;
+}
+.auth-card.wide { max-width: 600px; }
+.auth-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon), transparent); opacity: .5;
+}
+.auth-title { font-size: 18px; letter-spacing: 3px; font-weight: 600; text-align: center; margin-bottom: 20px; color: var(--text); }
+.auth-sub { text-align: center; color: var(--muted); font-size: 13px; margin: -10px 0 20px; }
+.auth-form { display: flex; flex-direction: column; gap: 16px; }
+
+.neo-input {
+  width: 100%; padding: 12px 16px; background: #060d14;
+  border: 1px solid var(--border); border-radius: 2px;
+  color: #fff; font-family: 'Share Tech Mono', monospace; font-size: 14px;
+  transition: .3s;
+}
+.neo-input:focus { outline: none; border-color: var(--neon); box-shadow: inset 0 0 10px rgba(0,245,200,0.1); }
+
+.process-btn {
+  width: 100%; padding: 12px; background: var(--neon); color: #080d12;
+  border: none; border-radius: 2px;
+  font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 2px;
+  cursor: pointer; transition: .2s;
+}
+.process-btn:hover { background: #fff; box-shadow: 0 0 15px var(--neon); }
+.process-btn.mini { padding: 6px 12px; font-size: 12px; width: auto; }
+
+.scan-btn {
+  width: 100%; padding: 10px; background: transparent; color: var(--neon2);
+  border: 1px solid var(--neon2); border-radius: 2px;
+  font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 2px;
+  cursor: pointer; transition: .2s;
+}
+.scan-btn:hover { background: rgba(0,191,255,.1); }
+.scan-btn.mini { padding: 4px 10px; font-size: 11px; width: auto; }
+
+.auth-links { display: flex; justify-content: space-between; font-size: 12px; margin-top: 10px; }
+.auth-links span { cursor: pointer; color: var(--muted); transition: .2s; }
+.auth-links span:hover { color: var(--neon); }
+
+/* ---- GRIDS & CARDS ---- */
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.grid-main { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px;}
+
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 16px; position: relative;
+}
+.metric-card { text-align: center; }
+.metric-label { font-size: 11px; letter-spacing: 2px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; }
+.metric-value { font-size: 24px; font-weight: 700; font-family: 'Share Tech Mono', monospace; }
+
+/* ---- TABLES & LISTS ---- */
+.section-label { font-size: 12px; letter-spacing: 2px; color: var(--muted); margin-bottom: 16px; text-transform: uppercase; }
+.list-table { display: flex; flex-direction: column; gap: 8px; }
+.list-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #060d14; border: 1px solid var(--border); border-radius: 2px; }
+.neo-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.neo-table th { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 11px; letter-spacing: 2px; font-weight: normal; }
+.neo-table td { padding: 12px 10px; border-bottom: 1px solid var(--border); font-family: 'Share Tech Mono', monospace; }
+
+.hidden-telemetry {
+  background: rgba(0, 245, 200, 0.05); border: 1px solid var(--border); border-radius: 2px;
+  padding: 10px; font-size: 11px; color: var(--muted); font-family: 'Share Tech Mono', monospace;
+}
+.tel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 6px; }
+
+/* ---- SCAN LOADER ---- */
+.scan-loader {
+  width: 60px; height: 60px; margin: 20px auto; position: relative;
+}
+.scanline-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2px solid var(--neon);
+  animation: scanRing 1.5s infinite linear;
+}
+
+/* AI Panel */
+.perf-list { display: flex; flex-direction: column; gap: 8px; }
+.perf-row { display: flex; align-items: center; gap: 8px; font-size: 12px;}
+.perf-label { width: 80px; color: var(--muted); }
+.perf-track { flex: 1; height: 6px; background: #1a3a5c; border-radius: 3px; }
+.perf-fill { height: 100%; border-radius: 3px; }
+
+/* TERMINAL LOG */
+.terminal-card { background: #060d14; }
+.terminal-header { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-bottom: 10px; }
+.log-line { font-family: 'Share Tech Mono', monospace; font-size: 11px; line-height: 1.6; }
+
+/* ---- ADMIN FRAUD CHART ---- */
+.bar-chart { display: flex; gap: 10px; height: 120px; align-items: flex-end; }
+.bcol { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.bbar { width: 100%; background: var(--danger); }
+.blabel { font-size: 10px; color: var(--muted); }
+
+/* ---- FOOTER ---- */
+.statusbar {
+  background: #050a10; border-top: 1px solid var(--border);
+  padding: 10px 24px; display: flex; justify-content: space-between;
+  font-size: 11px; font-family: 'Share Tech Mono', monospace;
+  color: var(--muted); letter-spacing: 1px; margin-top: auto;
+}
+.statusbar .ok { color: var(--neon); }

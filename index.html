@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sentinel Kinetic — AI Fraud Detector | SPA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+  <!-- BACKGROUND LOCK GRAPHIC -->
+  <div class="bg-lock-graphic">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M12 2a5 5 0 0 0-5 5v4H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-2V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v4H9V7zm3 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"/>
+    </svg>
+  </div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">SENTINEL<span>KINETIC</span></div>
+      <nav class="nav" id="mainNav">
+        <!-- Dynamically updated based on role -->
+      </nav>
+    </div>
+    <div class="header-right">
+      <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span class="status-text">SYSTEM OPTIMAL</span>
+      </div>
+      <div class="icon-btn" title="Logout" onclick="app.logout()">
+         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="container app-container" id="app-root">
+
+    <!-- ==================== USER VIEWS ==================== -->
+    
+    <!-- 1. USER LOGIN -->
+    <section id="view-user-login" class="page-view active">
+      <div class="auth-card">
+        <h2 class="auth-title">USER INITIATION</h2>
+        <div class="auth-form">
+          <input type="text" placeholder="Citizen ID / Email" value="user@kinetic.net" class="neo-input" />
+          <input type="password" placeholder="Passcode" value="12345" class="neo-input" />
+          <button class="process-btn" onclick="app.login('user')">AUTHENTICATE</button>
+          <div class="auth-links">
+            <span onclick="app.navigate('user-register')">New Identity? Register</span>
+            <span onclick="app.navigate('admin-login')" class="warn">Admin Portal</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. USER REGISTER -->
+    <section id="view-user-register" class="page-view">
+      <div class="auth-card">
+        <h2 class="auth-title">NEW IDENTITY REGISTRATION</h2>
+        <div class="auth-form">
+          <input type="text" placeholder="Full Name" class="neo-input" />
+          <input type="text" placeholder="Email Address" class="neo-input" />
+          <input type="password" placeholder="Passcode" class="neo-input" />
+          <input type="password" placeholder="Confirm Passcode" class="neo-input" />
+          <button class="process-btn" onclick="app.navigate('user-login')">ESTABLISH IDENTITY</button>
+          <div class="auth-links">
+            <span onclick="app.navigate('user-login')">Existing Identity? Login</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. USER DASHBOARD -->
+    <section id="view-user-dashboard" class="page-view">
+      <div class="header-row">
+        <h2>CITIZEN DASHBOARD</h2>
+        <button class="process-btn mini" onclick="app.navigate('user-transaction')">NEW TRANSFER</button>
+      </div>
+      <div class="grid-4 mb-2">
+         <div class="card metric-card">
+             <div class="metric-label">Available Balance</div>
+             <div class="metric-value blue">$12,450.00</div>
+         </div>
+         <div class="card metric-card">
+             <div class="metric-label">Last Transfer</div>
+             <div class="metric-value">$450.00</div>
+         </div>
+         <div class="card metric-card">
+             <div class="metric-label">Secured Transactions</div>
+             <div class="metric-value neon">128</div>
+         </div>
+         <div class="card metric-card">
+             <div class="metric-label">Neural Shield</div>
+             <div class="metric-value neon">ACTIVE</div>
+         </div>
+      </div>
+      <div class="card">
+         <h3 class="section-label">Recent Activity <span class="action-text" onclick="app.navigate('user-transaction-history')">View All</span></h3>
+         <div class="list-table">
+            <div class="list-row"><span class="txt">Sent to Alpha Core</span><span class="txt warn">-$200.00</span></div>
+            <div class="list-row"><span class="txt">Incoming from Beta Hub</span><span class="txt neon">+$1,500.00</span></div>
+            <div class="list-row"><span class="txt">Coffee Synthesizer</span><span class="txt warn">-$4.50</span></div>
+         </div>
+      </div>
+    </section>
+
+    <!-- 4. MAKE TRANSACTION -->
+    <section id="view-user-transaction" class="page-view">
+      <div class="auth-card wide">
+        <h2 class="auth-title">SECURE TRANSFER INITIATION</h2>
+        <p class="auth-sub">System verifies telemetry in background.</p>
+        <div class="auth-form" id="txn-form">
+          <input type="text" id="txnReceiver" placeholder="Receiver ID / Address" class="neo-input" value="BETA-HUB-992" />
+          <input type="number" id="txnAmount" placeholder="Amount (USD)" class="neo-input" value="200" />
+          
+          <div class="hidden-telemetry">
+            <small>Background Telemetry (Silent Collection):</small>
+            <div class="tel-grid">
+               <span>Device ID: <span class="neon">DEV-99A-MAC</span></span>
+               <span>Velocity: <span class="neon">0ms</span></span>
+               <span>Location: <span class="neon">Lat 34.05, Lon -118.24</span></span>
+               <span>Time: <span class="neon">Current</span></span>
+            </div>
+          </div>
+
+          <button class="process-btn" id="btn-initiate-txn" onclick="app.initiateTransaction()">INITIATE NEURAL SCAN</button>
+        </div>
+        
+        <div id="txn-scan-ui" style="display:none; text-align:center;">
+           <div class="scan-loader">
+              <div class="scanline-ring"></div>
+           </div>
+           <p class="neon mt-1">AI Risk Engine Analyzing...</p>
+        </div>
+        
+        <div id="txn-verify-ui" style="display:none;">
+           <h3 class="auth-title blue">SCAN COMPLETE: AUTHENTICATION REQUIRED</h3>
+           <p class="mb-1" id="txn-ai-result">[AI Engine: Risk score 12% - Proceed with OTP]</p>
+           <input type="text" placeholder="Enter 6-Digit OTP" class="neo-input" />
+           <button class="process-btn" onclick="app.finalizeTransaction()">CONFIRM TRANSFER</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. TRANSACTION RESULT -->
+    <section id="view-user-transaction-result" class="page-view">
+       <div class="auth-card" style="text-align: center;">
+          <h2 class="auth-title neon" id="res-title">TRANSFER SUCCESSFUL</h2>
+          <div class="neon mt-1 mb-2" style="font-size: 40px; font-family: 'Share Tech Mono';">✅</div>
+          <p class="mb-1" id="res-desc">Funds have securely reached the destination.</p>
+          <button class="scan-btn" onclick="app.navigate('user-dashboard')">RETURN TO DASHBOARD</button>
+       </div>
+    </section>
+
+    <!-- 6. TRANSACTION HISTORY -->
+    <section id="view-user-transaction-history" class="page-view">
+       <h2 class="mb-2">TRANSACTION VAULT</h2>
+       <div class="card table-card">
+         <table class="neo-table">
+            <thead>
+               <tr><th>ID</th><th>DATE</th><th>TARGET</th><th>AMOUNT</th><th>STATUS</th></tr>
+            </thead>
+            <tbody>
+               <tr><td>TXN-901</td><td>2026-04-09</td><td>Alpha Core</td><td class="warn">-$200.00</td><td class="neon">CLEARED</td></tr>
+               <tr><td>TXN-902</td><td>2026-04-08</td><td>Beta Hub</td><td class="neon">+$1,500.00</td><td class="neon">CLEARED</td></tr>
+               <tr><td>TXN-903</td><td>2026-04-05</td><td>Unknown Vector</td><td class="warn">-$9,450.00</td><td class="danger-c">BLOCKED</td></tr>
+            </tbody>
+         </table>
+       </div>
+    </section>
+
+    <!-- 7. PROFILE MANAGEMENT -->
+    <section id="view-user-profile" class="page-view">
+       <h2 class="mb-2">IDENTITY METRICS</h2>
+       <div class="grid-main">
+          <div class="card">
+             <h3 class="section-label">Core Details</h3>
+             <input type="text" class="neo-input mb-1" value="Citizen X" disabled/>
+             <input type="email" class="neo-input mb-1" value="user@kinetic.net"/>
+             <input type="password" class="neo-input mb-1" placeholder="Update Passcode"/>
+             <button class="scan-btn">UPDATE PROFILE</button>
+          </div>
+          <div class="card">
+             <h3 class="section-label">Device Fingerprints</h3>
+             <div class="list-row"><span class="txt">Mobile Unit (SG)</span><span class="txt neon">Trusted</span></div>
+             <div class="list-row"><span class="txt">Desktop Rig (NY)</span><span class="txt neon">Trusted</span></div>
+             <button class="scan-btn mt-1">REVOKE DEVICES</button>
+          </div>
+       </div>
+    </section>
+
+    <!-- 8. NOTIFICATIONS -->
+    <section id="view-user-notifications" class="page-view">
+       <h2 class="mb-2">SYSTEM ALERTS</h2>
+       <div class="card">
+          <div class="list-row"><span class="txt neon">Login from new location (SG) blocked by Neural Guard.</span><span class="txt muted">2h ago</span></div>
+          <div class="list-row"><span class="txt blue">Transfer of $450 initialized successfully.</span><span class="txt muted">1d ago</span></div>
+          <div class="list-row"><span class="txt warn">Please update your passcode periodically.</span><span class="txt muted">5d ago</span></div>
+       </div>
+    </section>
+
+    <!-- ==================== ADMIN VIEWS ==================== -->
+
+    <!-- 9. ADMIN LOGIN -->
+    <section id="view-admin-login" class="page-view">
+      <div class="auth-card" style="border-color: var(--danger)">
+        <h2 class="auth-title danger-c">PRIME DIRECTIVE OVERRIDE</h2>
+        <div class="auth-form">
+          <input type="text" placeholder="Admin Clearance Code" value="root" class="neo-input" />
+          <input type="password" placeholder="Passcode (Pre-Hashed Check)" value="admin" class="neo-input" />
+          <button class="process-btn" style="background:var(--danger)" onclick="app.login('admin')">BYPASS NEURAL LOCK</button>
+          <div class="auth-links">
+            <span onclick="app.navigate('user-login')">Return to Citizen Portal</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. ADMIN DASHBOARD -->
+    <section id="view-admin-dashboard" class="page-view">
+      <div class="header-row mb-2">
+        <h2>PRIME OVERSIGHT DASHBOARD</h2>
+      </div>
+      <div class="grid-4 mb-2">
+        <div class="card metric-card">
+          <div class="metric-label">Total Flagged</div>
+          <div class="metric-value danger-c">1,284</div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-label">Revenue at Risk</div>
+          <div class="metric-value warn">$4.2M</div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-label">System Load</div>
+          <div class="metric-value blue">34%</div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-label">Detection Latency</div>
+          <div class="metric-value neon">12ms</div>
+        </div>
+      </div>
+      
+      <!-- Existing main grid design repurposed -->
+      <div class="grid-main">
+         <div class="card">
+            <h3 class="section-label">RECENT NEURAL FLAGS</h3>
+             <table class="neo-table">
+               <thead><tr><th>TXN ID</th><th>RISK</th><th>ACTION</th></tr></thead>
+               <tbody>
+                  <tr><td>TXN-90X-ALPHA</td><td class="danger-c">98%</td><td><button class="scan-btn mini">REVIEW</button></td></tr>
+                  <tr><td>TXN-88A-BETA</td><td class="warn">72%</td><td><button class="scan-btn mini">REVIEW</button></td></tr>
+               </tbody>
+             </table>
+         </div>
+         <div class="card fraud-wheel-card">
+           <div class="section-label">GLOBAL THREAT GAUGE</div>
+           <svg class="fraud-wheel" viewBox="0 0 120 120" width="110" height="110">
+             <circle cx="60" cy="60" r="50" fill="none" stroke="#1a3a5c" stroke-width="8"/>
+             <circle id="adminThreatArc" cx="60" cy="60" r="50" fill="none" stroke="#ff2d55" stroke-width="8"
+               stroke-dasharray="150 288" stroke-linecap="round"
+               transform="rotate(-90 60 60)"/>
+             <text x="60" y="56" text-anchor="middle" font-family="Share Tech Mono" font-size="18" fill="#ff2d55">52%</text>
+             <text x="60" y="70" text-anchor="middle" font-family="Rajdhani" font-size="9" fill="#4a7a9b" letter-spacing="2">THREAT</text>
+           </svg>
+         </div>
+      </div>
+    </section>
+
+    <!-- 11. ALL USERS -->
+    <section id="view-admin-users" class="page-view">
+       <h2 class="mb-2">GLOBAL IDENTITY REGISTRY</h2>
+       <div class="card table-card">
+         <div class="mb-1" style="display:flex; justify-content:space-between">
+            <input type="text" class="neo-input" placeholder="Search Identities..." style="width:300px; padding:6px;"/>
+            <button class="scan-btn mini" onclick="alert('Admin creation via DB proxy only. Pre-hashed + change flag.')">+ PROVISION ADMIN</button>
+         </div>
+         <table class="neo-table">
+            <thead><tr><th>CITIZEN ID</th><th>ROLE</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+            <tbody>
+               <tr><td>user@kinetic.net</td><td class="neon">USER</td><td class="neon">ACTIVE</td><td><button class="scan-btn mini">FREEZE</button></td></tr>
+               <tr><td>admin@core.net</td><td class="danger-c">ADMIN</td><td class="neon">ACTIVE</td><td><button class="scan-btn mini">REVOKE</button></td></tr>
+               <tr><td>shadow@rogue.io</td><td class="neon">USER</td><td class="danger-c">RESTRICTED</td><td><button class="scan-btn mini">INSPECT</button></td></tr>
+            </tbody>
+         </table>
+       </div>
+    </section>
+
+    <!-- 12. FLAGGED TRANSACTIONS -->
+    <section id="view-admin-flagged" class="page-view">
+       <h2 class="mb-2">QUARANTINE ZONE: FLAGGED TRANSACTIONS</h2>
+       <div class="grid-main">
+          <div class="card">
+             <div class="list-row"><span class="txt neon">TXN-44A (Device Spoofer)</span><button class="scan-btn mini">DETAILS</button></div>
+             <div class="list-row"><span class="txt warn">TXN-88X (Velocity Improbable)</span><button class="scan-btn mini">DETAILS</button></div>
+             <div class="list-row"><span class="txt danger-c">TXN-99Z (Blacklisted Node)</span><button class="scan-btn mini">DETAILS</button></div>
+          </div>
+          <div class="card">
+             <h3 class="section-label">INSPECTION BAY</h3>
+             <p class="muted">Select a transaction to parse heuristic footprint.</p>
+          </div>
+       </div>
+    </section>
+
+    <!-- 13. AI MODEL PANEL -->
+    <section id="view-admin-ai-panel" class="page-view">
+       <h2 class="mb-2">NEURAL ENGINE CALIBRATION</h2>
+       <div class="grid-main">
+          <div class="card">
+            <div class="section-label">AI MODEL PERFORMANCE</div>
+            <div class="perf-list">
+              <div class="perf-row"><span class="perf-label">XGBoost</span><div class="perf-track"><div class="perf-fill neon-fill" style="width:97%"></div></div><span class="perf-pct">97.2%</span></div>
+              <div class="perf-row"><span class="perf-label">LSTM</span><div class="perf-track"><div class="perf-fill blue-fill" style="width:94%"></div></div><span class="perf-pct">94.1%</span></div>
+              <div class="perf-row"><span class="perf-label">Isolation F.</span><div class="perf-track"><div class="perf-fill warn-fill" style="width:91%"></div></div><span class="perf-pct">91.8%</span></div>
+              <div class="perf-row"><span class="perf-label">Autoencoder</span><div class="perf-track"><div class="perf-fill purple-fill" style="width:88%"></div></div><span class="perf-pct">88.4%</span></div>
+            </div>
+            <div class="agg-row"><span class="perf-label">AGGREGATE CONFIDENCE</span><span class="val neon">94.2%</span></div>
+          </div>
+          <div class="card terminal-card">
+              <div class="terminal-header">
+                <div class="terminal-title">MODEL_TRAINING_LOG</div>
+                <div class="live-tag">LIVE</div>
+              </div>
+              <div class="terminal-body">
+                <div class="terminal-inner">
+                   <div class="log-line log-info">Epoch 102/500 - Loss: 0.0412</div>
+                   <div class="log-line log-ok">Validating weights... OK</div>
+                   <div class="log-line log-sys">Adjusting gradient decay...</div>
+                </div>
+              </div>
+          </div>
+       </div>
+    </section>
+
+    <!-- 14. FRAUD REPORTS -->
+    <section id="view-admin-fraud-reports" class="page-view">
+       <h2 class="mb-2">ANALYTICS & COMPLIANCE</h2>
+       <div class="card mb-2">
+          <h3 class="section-label">7-DAY THREAT VECTOR MAPPING</h3>
+          <div class="bar-chart">
+            <div class="bcol"><div class="bbar d" style="height:20%"></div><div class="blabel">M</div></div>
+            <div class="bcol"><div class="bbar d" style="height:35%"></div><div class="blabel">T</div></div>
+            <div class="bcol"><div class="bbar d" style="height:60%"></div><div class="blabel">W</div></div>
+            <div class="bcol"><div class="bbar d" style="height:45%"></div><div class="blabel">T</div></div>
+            <div class="bcol"><div class="bbar d" style="height:80%"></div><div class="blabel">F</div></div>
+            <div class="bcol"><div class="bbar d" style="height:30%"></div><div class="blabel">S</div></div>
+            <div class="bcol"><div class="bbar d" style="height:50%"></div><div class="blabel">S</div></div>
+          </div>
+       </div>
+       <div class="grid-main">
+          <div class="card"><button class="process-btn">EXPORT CSV REPORT</button></div>
+          <div class="card"><button class="scan-btn">ARCHIVE DATABASE</button></div>
+       </div>
+    </section>
+
+  </main>
+
+  <!-- STATUS BAR -->
+  <footer class="statusbar">
+    <span>SYSTEM STATUS: <span class="ok">OPTIMAL</span></span>
+    <span>ENCRYPTION: <span class="ok">AES-256</span></span>
+    <span>NEURAL UPTIME: <span class="ok">99.5%</span></span>
+    <span id="clockBar">© 2026 KINETIC OBSERVATORY</span>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
