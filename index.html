@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sentinel Kinetic — AI Fraud Detector | SPA</title>
+  <title>SecureWith.AI — AI Fraud Detector | SPA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/style.css"/>
@@ -20,7 +20,7 @@
   <!-- HEADER -->
   <header class="header">
     <div class="header-left">
-      <div class="logo">SENTINEL<span>KINETIC</span></div>
+      <div class="logo">SECURE<span>WITH.AI</span></div>
       <nav class="nav" id="mainNav">
         <!-- Dynamically updated based on role -->
       </nav>
@@ -45,14 +45,24 @@
     <section id="view-user-login" class="page-view active">
       <div class="auth-card">
         <h2 class="auth-title">USER INITIATION</h2>
-        <div class="auth-form">
-          <input type="text" placeholder="Citizen ID / Email" value="user@kinetic.net" class="neo-input" />
-          <input type="password" placeholder="Passcode" value="12345" class="neo-input" />
-          <button class="process-btn" onclick="app.login('user')">AUTHENTICATE</button>
+        <div class="auth-form" id="login-primary-form">
+          <input type="text" id="loginIdentity" placeholder="Email / Mobile" value="user@secure.ai" class="neo-input" />
+          <input type="password" id="loginPassword" placeholder="Passcode" value="12345678A@" class="neo-input" />
+          <button class="process-btn" onclick="app.loginSubmit()">AUTHENTICATE</button>
           <div class="auth-links">
             <span onclick="app.navigate('user-register')">New Identity? Register</span>
             <span onclick="app.navigate('admin-login')" class="warn">Admin Portal</span>
           </div>
+        </div>
+        
+        <div class="auth-form" id="login-otp-ui" style="display:none;">
+          <h3 class="auth-title warn">UNRECOGNIZED DEVICE / LOCATION</h3>
+          <p class="mb-1" style="font-size: 13px; color: var(--muted);">We've sent a 6-digit OTP to your registered channels. Enter it below to unseal access.</p>
+          <input type="text" id="loginOtp" placeholder="6-Digit OTP" class="neo-input" />
+          <label class="auth-links" style="display: flex; gap: 8px; justify-content: flex-start; align-items: center; margin-bottom: 20px;">
+             <input type="checkbox" id="trustDeviceCb" style="accent-color: var(--neon)" checked> Trust this device
+          </label>
+          <button class="process-btn" onclick="app.loginVerifyOtp()">VERIFY & PROCEED</button>
         </div>
       </div>
     </section>
@@ -61,15 +71,35 @@
     <section id="view-user-register" class="page-view">
       <div class="auth-card">
         <h2 class="auth-title">NEW IDENTITY REGISTRATION</h2>
-        <div class="auth-form">
-          <input type="text" placeholder="Full Name" class="neo-input" />
-          <input type="text" placeholder="Email Address" class="neo-input" />
-          <input type="password" placeholder="Passcode" class="neo-input" />
-          <input type="password" placeholder="Confirm Passcode" class="neo-input" />
-          <button class="process-btn" onclick="app.navigate('user-login')">ESTABLISH IDENTITY</button>
+        <div class="auth-form" id="reg-primary-form">
+          <input type="text" id="regName" placeholder="Full Name" class="neo-input" />
+          <input type="email" id="regEmail" placeholder="Email Address" class="neo-input" oninput="app.validateEmail(this)" />
+          <span id="emailError" class="danger-c" style="display:none; font-size:12px;">Invalid Email Format</span>
+          <input type="text" id="regMobile" placeholder="Mobile Number (10 digits)" class="neo-input" maxlength="10" />
+          
+          <div style="display: flex; gap: 10px;">
+             <input type="date" id="regDob" class="neo-input" style="flex:1" />
+             <input type="text" id="regCity" placeholder="City" class="neo-input" style="flex:1" />
+          </div>
+          
+          <input type="password" id="regPassword" placeholder="Passcode" class="neo-input" oninput="app.checkPasswordStrength(this.value)" />
+          <div style="height: 4px; background: #222; margin-bottom: 5px; border-radius: 2px; overflow: hidden;">
+             <div id="pwdStrengthBar" style="height: 100%; width: 0%; transition: width 0.3s; background: var(--danger)"></div>
+          </div>
+          <span id="pwdStrengthText" class="muted" style="font-size:11px; display:block; margin-bottom:15px;">Min 8 chars, 1 uppercase, 1 number, 1 special</span>
+          
+          <input type="password" id="regConfirmPassword" placeholder="Confirm Passcode" class="neo-input" />
+          <button class="process-btn" onclick="app.registerSendOtp()">ACQUIRE OTP</button>
           <div class="auth-links">
             <span onclick="app.navigate('user-login')">Existing Identity? Login</span>
           </div>
+        </div>
+
+        <div class="auth-form" id="reg-otp-ui" style="display:none;">
+          <h3 class="auth-title blue">VERIFICATION REQUIRED</h3>
+          <p class="mb-1" style="font-size: 13px; color: var(--muted);">We've sent a 6-digit OTP to your email and mobile. Expires in 5:00.</p>
+          <input type="text" id="regOtp" placeholder="6-Digit OTP" class="neo-input" />
+          <button class="process-btn" onclick="app.registerSubmit()">ESTABLISH IDENTITY</button>
         </div>
       </div>
     </section>
@@ -83,15 +113,15 @@
       <div class="grid-4 mb-2">
          <div class="card metric-card">
              <div class="metric-label">Available Balance</div>
-             <div class="metric-value blue">$12,450.00</div>
+             <div class="metric-value blue" id="dashValBalance">$12,450.00</div>
          </div>
          <div class="card metric-card">
              <div class="metric-label">Last Transfer</div>
-             <div class="metric-value">$450.00</div>
+             <div class="metric-value" id="dashValLast">$450.00</div>
          </div>
          <div class="card metric-card">
              <div class="metric-label">Secured Transactions</div>
-             <div class="metric-value neon">128</div>
+             <div class="metric-value neon" id="dashValSecured">128</div>
          </div>
          <div class="card metric-card">
              <div class="metric-label">Neural Shield</div>
@@ -100,10 +130,8 @@
       </div>
       <div class="card">
          <h3 class="section-label">Recent Activity <span class="action-text" onclick="app.navigate('user-transaction-history')">View All</span></h3>
-         <div class="list-table">
-            <div class="list-row"><span class="txt">Sent to Alpha Core</span><span class="txt warn">-$200.00</span></div>
-            <div class="list-row"><span class="txt">Incoming from Beta Hub</span><span class="txt neon">+$1,500.00</span></div>
-            <div class="list-row"><span class="txt">Coffee Synthesizer</span><span class="txt warn">-$4.50</span></div>
+         <div class="list-table" id="dashRecentAct">
+            <!-- Dynamically populated -->
          </div>
       </div>
     </section>
@@ -114,16 +142,37 @@
         <h2 class="auth-title">SECURE TRANSFER INITIATION</h2>
         <p class="auth-sub">System verifies telemetry in background.</p>
         <div class="auth-form" id="txn-form">
-          <input type="text" id="txnReceiver" placeholder="Receiver ID / Address" class="neo-input" value="BETA-HUB-992" />
-          <input type="number" id="txnAmount" placeholder="Amount (USD)" class="neo-input" value="200" />
+          <input type="text" id="txnReceiver" placeholder="Receiver ID / Name" class="neo-input" />
+          <input type="number" id="txnAmount" placeholder="Amount (USD)" class="neo-input" />
+          
+          <select id="txnPaymentType" class="neo-input">
+             <option value="UPI">UPI</option>
+             <option value="Bank Transfer">Bank Transfer</option>
+             <option value="Wallet">Wallet</option>
+          </select>
+          
+          <div style="display:flex; gap:10px;">
+              <select id="txnReceiverAge" class="neo-input" style="flex:1">
+                 <option value="" disabled selected>Receiver Age</option>
+                 <option value="New">New</option>
+                 <option value="Less than 6 months">Less than 6 months</option>
+                 <option value="Established">Established</option>
+              </select>
+              
+              <select id="txnReceiverType" class="neo-input" style="flex:1">
+                 <option value="" disabled selected>Beneficiary Type</option>
+                 <option value="New">New</option>
+                 <option value="Saved">Saved Beneficiary</option>
+              </select>
+          </div>
           
           <div class="hidden-telemetry">
             <small>Background Telemetry (Silent Collection):</small>
             <div class="tel-grid">
-               <span>Device ID: <span class="neon">DEV-99A-MAC</span></span>
-               <span>Velocity: <span class="neon">0ms</span></span>
-               <span>Location: <span class="neon">Lat 34.05, Lon -118.24</span></span>
-               <span>Time: <span class="neon">Current</span></span>
+               <span id="telDeviceId">Device ID: <span class="neon">Generating...</span></span>
+               <span id="telVelocity">Velocity: <span class="neon">Tracking...</span></span>
+               <span id="telLocation" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Location: <span class="neon">Capturing...</span></span>
+               <span id="telTime">Time: <span class="neon">Current</span></span>
             </div>
           </div>
 
@@ -134,13 +183,13 @@
            <div class="scan-loader">
               <div class="scanline-ring"></div>
            </div>
-           <p class="neon mt-1">AI Risk Engine Analyzing...</p>
+           <p class="neon mt-1">AI Risk Engine Analyzing <span id="dyn-risk-status">...</span></p>
         </div>
         
         <div id="txn-verify-ui" style="display:none;">
-           <h3 class="auth-title blue">SCAN COMPLETE: AUTHENTICATION REQUIRED</h3>
-           <p class="mb-1" id="txn-ai-result">[AI Engine: Risk score 12% - Proceed with OTP]</p>
-           <input type="text" placeholder="Enter 6-Digit OTP" class="neo-input" />
+           <h3 class="auth-title warn" id="txn-verify-title">SECURITY CLEARANCE PAUSED</h3>
+           <p class="mb-1" id="txn-ai-result">[AI Engine]</p>
+           <input type="text" id="txnOtp" placeholder="Enter System OTP / PIN" class="neo-input" />
            <button class="process-btn" onclick="app.finalizeTransaction()">CONFIRM TRANSFER</button>
         </div>
       </div>
@@ -164,10 +213,8 @@
             <thead>
                <tr><th>ID</th><th>DATE</th><th>TARGET</th><th>AMOUNT</th><th>STATUS</th></tr>
             </thead>
-            <tbody>
-               <tr><td>TXN-901</td><td>2026-04-09</td><td>Alpha Core</td><td class="warn">-$200.00</td><td class="neon">CLEARED</td></tr>
-               <tr><td>TXN-902</td><td>2026-04-08</td><td>Beta Hub</td><td class="neon">+$1,500.00</td><td class="neon">CLEARED</td></tr>
-               <tr><td>TXN-903</td><td>2026-04-05</td><td>Unknown Vector</td><td class="warn">-$9,450.00</td><td class="danger-c">BLOCKED</td></tr>
+            <tbody id="userHistoryTbody">
+               <!-- Dynamically populated -->
             </tbody>
          </table>
        </div>
@@ -177,29 +224,79 @@
     <section id="view-user-profile" class="page-view">
        <h2 class="mb-2">IDENTITY METRICS</h2>
        <div class="grid-main">
+          
           <div class="card">
              <h3 class="section-label">Core Details</h3>
-             <input type="text" class="neo-input mb-1" value="Citizen X" disabled/>
-             <input type="email" class="neo-input mb-1" value="user@kinetic.net"/>
-             <input type="password" class="neo-input mb-1" placeholder="Update Passcode"/>
-             <button class="scan-btn">UPDATE PROFILE</button>
+             <input type="text" id="profName" class="neo-input mb-1" placeholder="Name" disabled/>
+             <input type="email" id="profEmail" class="neo-input mb-1" placeholder="Email" disabled/>
+             <input type="text" id="profMobile" class="neo-input mb-1" placeholder="Mobile" disabled/>
+             <div style="display:flex; gap:10px;">
+                <input type="text" id="profCity" class="neo-input mb-1" placeholder="City" style="flex:1" disabled/>
+                <input type="date" id="profDob" class="neo-input mb-1" style="flex:1" disabled/>
+             </div>
+             <p class="muted" style="font-size:11px;">Core details are immutable post-registration per KYC norms.</p>
           </div>
+
+          <div class="card">
+             <h3 class="section-label">Security Settings</h3>
+             <div style="display: flex; gap: 10px;" class="mb-1">
+                 <input type="password" id="profOldPwd" class="neo-input" placeholder="Current Pwd"/>
+                 <input type="password" id="profNewPwd" class="neo-input" placeholder="New Pwd"/>
+                 <button class="process-btn mini" onclick="app.updatePassword()">CHANGE</button>
+             </div>
+             <div style="display: flex; justify-content: space-between; align-items: center;" class="mb-1 list-row">
+                 <span class="txt">Two-Factor Authentication (2FA)</span>
+                 <input type="checkbox" id="prof2fa" style="accent-color: var(--neon)" onchange="app.updateSettings()">
+             </div>
+             <h3 class="section-label mt-2">Transaction PIN</h3>
+             <div style="display: flex; gap: 10px;" class="mb-1">
+                 <input type="password" id="profPinPwd" class="neo-input" placeholder="Current Pwd"/>
+                 <input type="password" id="profNewPin" class="neo-input" placeholder="4-Digit PIN" maxlength="4"/>
+                 <button class="process-btn mini" onclick="app.updatePin()">SET PIN</button>
+             </div>
+          </div>
+          
+          <div class="card">
+             <h3 class="section-label">Transaction Preferences</h3>
+             <div class="mb-1">
+                 <small>Daily Limit ($)</small>
+                 <div style="display:flex; gap:10px;">
+                    <input type="number" id="profDailyLimit" class="neo-input" />
+                    <button class="scan-btn mini" onclick="app.updateSettings()">SAVE</button>
+                 </div>
+             </div>
+             <div class="mb-1">
+                 <small>Per-Transaction Limit ($)</small>
+                 <div style="display:flex; gap:10px;">
+                    <input type="number" id="profTxnLimit" class="neo-input" />
+                    <button class="scan-btn mini" onclick="app.updateSettings()">SAVE</button>
+                 </div>
+             </div>
+             <div style="display: flex; justify-content: space-between; align-items: center;" class="mb-1 list-row">
+                 <span class="txt" title="Blocks transactions 11 PM - 6 AM">Night Restriction Mode</span>
+                 <input type="checkbox" id="profNightRes" style="accent-color: var(--neon)" onchange="app.updateSettings()">
+             </div>
+             <div style="display: flex; justify-content: space-between; align-items: center;" class="mb-1 list-row">
+                 <span class="txt">Auto-Save Beneficiary</span>
+                 <input type="checkbox" id="profAutoSave" style="accent-color: var(--neon)" onchange="app.updateSettings()">
+             </div>
+          </div>
+          
           <div class="card">
              <h3 class="section-label">Device Fingerprints</h3>
-             <div class="list-row"><span class="txt">Mobile Unit (SG)</span><span class="txt neon">Trusted</span></div>
-             <div class="list-row"><span class="txt">Desktop Rig (NY)</span><span class="txt neon">Trusted</span></div>
-             <button class="scan-btn mt-1">REVOKE DEVICES</button>
+             <div id="deviceListContainer">
+                <!-- Dynamically populated -->
+             </div>
           </div>
+          
        </div>
     </section>
 
     <!-- 8. NOTIFICATIONS -->
     <section id="view-user-notifications" class="page-view">
        <h2 class="mb-2">SYSTEM ALERTS</h2>
-       <div class="card">
-          <div class="list-row"><span class="txt neon">Login from new location (SG) blocked by Neural Guard.</span><span class="txt muted">2h ago</span></div>
-          <div class="list-row"><span class="txt blue">Transfer of $450 initialized successfully.</span><span class="txt muted">1d ago</span></div>
-          <div class="list-row"><span class="txt warn">Please update your passcode periodically.</span><span class="txt muted">5d ago</span></div>
+       <div class="card" id="userAlertsList">
+          <!-- Dynamically populated -->
        </div>
     </section>
 
@@ -225,20 +322,20 @@
       <div class="header-row mb-2">
         <h2>PRIME OVERSIGHT DASHBOARD</h2>
       </div>
-      <div class="grid-4 mb-2">
-        <div class="card metric-card">
-          <div class="metric-label">Total Flagged</div>
-          <div class="metric-value danger-c">1,284</div>
-        </div>
-        <div class="card metric-card">
-          <div class="metric-label">Revenue at Risk</div>
-          <div class="metric-value warn">$4.2M</div>
-        </div>
-        <div class="card metric-card">
-          <div class="metric-label">System Load</div>
-          <div class="metric-value blue">34%</div>
-        </div>
-        <div class="card metric-card">
+       <div class="grid-4 mb-2">
+         <div class="card metric-card">
+           <div class="metric-label">Total Flagged</div>
+           <div class="metric-value danger-c" id="adminValFlagged">1,284</div>
+         </div>
+         <div class="card metric-card">
+           <div class="metric-label">Revenue at Risk</div>
+           <div class="metric-value warn" id="adminValRisk">$4.2M</div>
+         </div>
+         <div class="card metric-card">
+           <div class="metric-label">Approved Transactions</div>
+           <div class="metric-value blue" id="adminValApproved">140</div>
+         </div>
+         <div class="card metric-card">
           <div class="metric-label">Detection Latency</div>
           <div class="metric-value neon">12ms</div>
         </div>
@@ -247,12 +344,11 @@
       <!-- Existing main grid design repurposed -->
       <div class="grid-main">
          <div class="card">
-            <h3 class="section-label">RECENT NEURAL FLAGS</h3>
+            <h3 class="section-label">RECENT NEURAL FLAGS (TOP 5)</h3>
              <table class="neo-table">
                <thead><tr><th>TXN ID</th><th>RISK</th><th>ACTION</th></tr></thead>
-               <tbody>
-                  <tr><td>TXN-90X-ALPHA</td><td class="danger-c">98%</td><td><button class="scan-btn mini">REVIEW</button></td></tr>
-                  <tr><td>TXN-88A-BETA</td><td class="warn">72%</td><td><button class="scan-btn mini">REVIEW</button></td></tr>
+               <tbody id="adminRecentFlagsTbody">
+                  <!-- Dynamically injected -->
                </tbody>
              </table>
          </div>
@@ -280,10 +376,8 @@
          </div>
          <table class="neo-table">
             <thead><tr><th>CITIZEN ID</th><th>ROLE</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
-            <tbody>
-               <tr><td>user@kinetic.net</td><td class="neon">USER</td><td class="neon">ACTIVE</td><td><button class="scan-btn mini">FREEZE</button></td></tr>
-               <tr><td>admin@core.net</td><td class="danger-c">ADMIN</td><td class="neon">ACTIVE</td><td><button class="scan-btn mini">REVOKE</button></td></tr>
-               <tr><td>shadow@rogue.io</td><td class="neon">USER</td><td class="danger-c">RESTRICTED</td><td><button class="scan-btn mini">INSPECT</button></td></tr>
+            <tbody id="adminUsersTbody">
+               <!-- Dynamically injected -->
             </tbody>
          </table>
        </div>
@@ -293,10 +387,8 @@
     <section id="view-admin-flagged" class="page-view">
        <h2 class="mb-2">QUARANTINE ZONE: FLAGGED TRANSACTIONS</h2>
        <div class="grid-main">
-          <div class="card">
-             <div class="list-row"><span class="txt neon">TXN-44A (Device Spoofer)</span><button class="scan-btn mini">DETAILS</button></div>
-             <div class="list-row"><span class="txt warn">TXN-88X (Velocity Improbable)</span><button class="scan-btn mini">DETAILS</button></div>
-             <div class="list-row"><span class="txt danger-c">TXN-99Z (Blacklisted Node)</span><button class="scan-btn mini">DETAILS</button></div>
+          <div class="card" id="adminFlaggedListContainer">
+             <!-- Dynamically injected -->
           </div>
           <div class="card">
              <h3 class="section-label">INSPECTION BAY</h3>
@@ -363,7 +455,7 @@
     <span>SYSTEM STATUS: <span class="ok">OPTIMAL</span></span>
     <span>ENCRYPTION: <span class="ok">AES-256</span></span>
     <span>NEURAL UPTIME: <span class="ok">99.5%</span></span>
-    <span id="clockBar">© 2026 KINETIC OBSERVATORY</span>
+    <span id="clockBar">© 2026 SECUREWITH.AI PLATFORM</span>
   </footer>
 
   <script src="js/main.js"></script>

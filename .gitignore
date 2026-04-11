@@ -1,0 +1,4 @@
+node_modules/
+backend/database.sqlite
+.env
+.DS_Store

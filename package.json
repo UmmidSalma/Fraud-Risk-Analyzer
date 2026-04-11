@@ -1,0 +1,30 @@
+{
+  "name": "sentinel-kinetic",
+  "version": "1.0.0",
+  "description": "A dark, animated frontend dashboard for an AI-Based Real-Time Digital Payment Fraud & Risk Analyzer.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UmmidSalma/Fraud-Risk-Analyzer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/UmmidSalma/Fraud-Risk-Analyzer/issues"
+  },
+  "homepage": "https://github.com/UmmidSalma/Fraud-Risk-Analyzer#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "sqlite3": "^6.0.1",
+    "ua-parser-js": "^2.0.9"
+  }
+}
