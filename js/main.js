@@ -6,8 +6,8 @@
 const app = {
    role: null, // 'user' or 'admin'
    init() {
-       // Start at login
-       this.navigate('user-login');
+       // Start at home page
+       this.navigate('home');
    },
 
    navigate(viewId) {
@@ -65,13 +65,15 @@ const app = {
    async registerSendOtp() {
        const email = document.getElementById('regEmail').value;
        const mobile = document.getElementById('regMobile').value;
+       const txnPin = document.getElementById('regTxnPin').value;
        if(!email || !mobile) return alert("Email and Mobile required!");
+       if(!txnPin || txnPin.length !== 4) return alert("Transaction PIN must be 4 digits.");
        
        try {
            const res = await fetch('/api/auth/send-otp', {
                method: 'POST',
                headers: {'Content-Type': 'application/json'},
-               body: JSON.stringify({ email, mobile })
+               body: JSON.stringify({ email, mobile, txn_pin: txnPin })
            });
            const data = await res.json();
            if(res.ok) {
@@ -91,6 +93,7 @@ const app = {
            dob: document.getElementById('regDob').value,
            city: document.getElementById('regCity').value,
            password: document.getElementById('regPassword').value,
+           txn_pin: document.getElementById('regTxnPin').value,
            otp: document.getElementById('regOtp').value
        };
        const res = await fetch('/api/auth/register', {
@@ -161,6 +164,8 @@ const app = {
        }
        
        const histRes = await this.fetchWithAuth('/api/user/history');
+       let weeklyTotals = [0, 0, 0, 0, 0, 0, 0];
+       let weekdayLabels = [];
        if(histRes.ok && histRes.data) {
            const cont = document.getElementById('dashRecentAct');
            cont.innerHTML = '';
@@ -168,6 +173,52 @@ const app = {
                const color = t.status === 'COMPLETED' ? 'neon' : 'warn';
                cont.innerHTML += `<div class="list-row"><span class="txt">Transfer to ${t.receiver_id}</span><span class="txt ${color}">-$${t.amount}</span></div>`;
            });
+           const today = new Date();
+           const startDate = new Date(today);
+           startDate.setHours(0, 0, 0, 0);
+           startDate.setDate(startDate.getDate() - 6);
+           for(let i = 0; i < 7; i++) {
+               const labelDate = new Date(startDate);
+               labelDate.setDate(startDate.getDate() + i);
+               weekdayLabels.push(labelDate.toLocaleDateString('en-US', { weekday: 'short' }));
+           }
+           histRes.data.forEach(t => {
+               const txDate = new Date(t.timestamp || t.created_at || t.date);
+               if(isNaN(txDate)) return;
+               txDate.setHours(0, 0, 0, 0);
+               const diffDays = Math.round((txDate - startDate) / (1000 * 60 * 60 * 24));
+               if(diffDays >= 0 && diffDays < 7) {
+                   weeklyTotals[diffDays] += Number(t.amount || 0);
+               }
+           });
+       }
+
+       const volumeBars = document.querySelectorAll('.bar-fill');
+       if(volumeBars.length) {
+           const maxValue = Math.max(...weeklyTotals, 1);
+           volumeBars.forEach((bar, index) => {
+               const value = Math.round(weeklyTotals[index] || 0);
+               const height = Math.min(100, Math.max(12, Math.round((value / maxValue) * 100)));
+               bar.style.height = `${height}%`;
+               bar.style.animationDelay = `${index * 0.08}s`;
+               const label = bar.querySelector('span');
+               if(label) label.textContent = value > 0 ? `$${value}` : '—';
+               const dayLabel = bar.nextElementSibling;
+               if(dayLabel && dayLabel.tagName === 'SMALL') {
+                   dayLabel.textContent = weekdayLabels[index];
+               }
+           });
+       }
+       const gauge = document.querySelector('.gauge-fill');
+       if(gauge) {
+           const percent = Math.min(100, Math.max(35, Math.round((weeklyTotals.reduce((sum, v) => sum + v, 0) / 700) * 100)));
+           const radius = 50;
+           const circumference = 2 * Math.PI * radius;
+           gauge.style.strokeDasharray = `${circumference} ${circumference}`;
+           const offset = circumference - (percent / 100) * circumference;
+           setTimeout(() => { gauge.style.strokeDashoffset = offset; }, 100);
+           const gaugeText = document.getElementById('gaugeValue');
+           if(gaugeText) gaugeText.textContent = `${percent}%`;
        }
    },
    
@@ -369,17 +420,119 @@ const app = {
 
    // Core feature: Transaction Flow
    async initiateTransaction() {
-       const fw = document.getElementById('txn-form');
-       const sc = document.getElementById('txn-scan-ui');
-       const vf = document.getElementById('txn-verify-ui');
-
        const amount = document.getElementById('txnAmount').value;
        const receiver_id = document.getElementById('txnReceiver').value;
        const payment_type = document.getElementById('txnPaymentType').value;
-       const receiver_age = document.getElementById('txnReceiverAge').value;
-       const receiver_type = document.getElementById('txnReceiverType').value;
 
        if(!amount || !receiver_id) return alert('Enter amount and receiver');
+       this.detectReceiverProfile();
+       if(!this.pendingReceiver) return alert('Unable to determine receiver profile.');
+
+       // Store transaction data for later use
+       this.pendingTransaction = {
+           amount,
+           receiver_id,
+           payment_type,
+           receiver_name: this.pendingReceiver.detectedName,
+           receiver_phone: this.pendingReceiver.detectedPhone,
+           receiver_age: this.pendingReceiver.detectedAge,
+           receiver_type: this.pendingReceiver.detectedType
+       };
+
+       // Show security key modal
+       document.getElementById('security-key-modal').style.display = 'flex';
+       document.getElementById('modalSecurityKey').focus();
+   },
+
+   cancelSecurityKeyModal() {
+       document.getElementById('security-key-modal').style.display = 'none';
+       document.getElementById('modalSecurityKey').value = '';
+       this.pendingTransaction = null;
+   },
+
+   async verifySecurityKey() {
+       const securityKey = document.getElementById('modalSecurityKey').value;
+
+       if(!securityKey) return alert('Enter security key');
+       if(securityKey.length < 4) return alert('Security key must be at least 4 characters');
+
+       // Hide modal and proceed with transaction
+       document.getElementById('security-key-modal').style.display = 'none';
+       await this.proceedWithTransaction(securityKey);
+   },
+
+   detectReceiverProfile() {
+       const input = document.getElementById('txnReceiver').value.trim();
+       const card = document.getElementById('receiverInfoCard');
+       const nameEl = document.getElementById('detectedReceiverName');
+       const phoneEl = document.getElementById('detectedReceiverPhone');
+       const typeEl = document.getElementById('detectedReceiverType');
+       const ageEl = document.getElementById('detectedReceiverAge');
+
+       if(!input) {
+           card.style.display = 'none';
+           this.pendingReceiver = null;
+           return;
+       }
+
+       const digits = input.replace(/\D/g, '');
+       const isPhone = digits.length >= 7;
+       let detectedName = '';
+       let detectedPhone = '';
+
+       if(isPhone) {
+           detectedPhone = digits.length === 10 ? `${digits.slice(0,3)}-${digits.slice(3,6)}-${digits.slice(6)}` : digits;
+           detectedName = this.lookupReceiverName(digits) || `Beneficiary ${digits.slice(-4)}`;
+       } else {
+           detectedName = input;
+           detectedPhone = this.lookupReceiverPhone(input) || `+91 ${Math.floor(900000000 + Math.random() * 100000000)}`;
+       }
+
+       const detectedType = isPhone ? 'Saved Beneficiary' : 'New Beneficiary';
+       const detectedAge = this.guessReceiverAge(input, isPhone);
+
+       this.pendingReceiver = {
+           detectedName,
+           detectedPhone,
+           detectedType,
+           detectedAge
+       };
+
+       nameEl.textContent = detectedName;
+       phoneEl.textContent = detectedPhone;
+       typeEl.textContent = detectedType;
+       ageEl.textContent = detectedAge;
+       card.style.display = 'grid';
+   },
+
+   lookupReceiverName(phone) {
+       const lookup = {
+           '9876543210': 'Kavya Rao',
+           '9123456789': 'Rohit Singh'
+       };
+       return lookup[phone];
+   },
+
+   lookupReceiverPhone(name) {
+       const lookup = {
+           'Kavya Rao': '+91 98765 43210',
+           'Rohit Singh': '+91 91234 56789'
+       };
+       return lookup[name];
+   },
+
+   guessReceiverAge(input, isPhone) {
+       const patterns = ['New', 'Less than 6 months', 'Established'];
+       if(isPhone) return patterns[input.length % patterns.length];
+       return patterns[input.length % patterns.length];
+   },
+
+   async proceedWithTransaction(securityKey) {
+       const fw = document.getElementById('txn-form');
+       const sc = document.getElementById('txn-scan-ui');
+       const vf = document.getElementById('txn-verify-ui');
+       
+       if(!this.pendingTransaction) return alert('Transaction data lost');
 
        fw.style.display = 'none';
        sc.style.display = 'block';
@@ -394,7 +547,8 @@ const app = {
 
        // Actual API Call to AI Engine
        const payload = {
-           amount, payment_type, receiver_id, receiver_age, receiver_type,
+           ...this.pendingTransaction,
+           security_key: securityKey,
            location_changed: false, // simulated
            device_trust_flag: true, // simulated based on current auth
            velocity_ms: Math.random() > 0.8 ? 500 : 5000 // randomly simulate bot velocity sometimes
@@ -440,6 +594,8 @@ const app = {
 
        if(res.ok) {
            this.navigate('user-transaction-result');
+           this.pendingTransaction = null;
+           document.getElementById('modalSecurityKey').value = '';
            this.resetTxnForm();
        } else {
            alert(res.error);
@@ -451,8 +607,11 @@ const app = {
            document.getElementById('txn-form').style.display = 'block';
            document.getElementById('txn-scan-ui').style.display = 'none';
            document.getElementById('txn-verify-ui').style.display = 'none';
+           document.getElementById('security-key-modal').style.display = 'none';
            document.getElementById('txnAmount').value = '';
            document.getElementById('txnReceiver').value = '';
+           document.getElementById('receiverInfoCard').style.display = 'none';
+           this.pendingReceiver = null;
        }, 1000);
    }
 };
