@@ -4,46 +4,52 @@ import numpy as np
 with open("ml_model/model/fraud_model.pkl", "rb") as file:
     model = pickle.load(file)
 
-print("\nEnter Transaction Details:\n")
+# Fraud Risk Prediction Function (Reusable ML Module)
+def predict_risk(input_data):
 
-amount = int(input("Enter amount: "))
-transaction_hour = int(input("Enter hour (0-23): "))
-is_new_receiver = int(input("New receiver? (1/0): "))
-device_mismatch = int(input("Device mismatch? (1/0): "))
-location_mismatch = int(input("Location mismatch? (1/0): "))
-transaction_count = int(input("Transactions in last hour: "))
-avg_amount_deviation = int(input("Amount deviation (0-100): "))
-is_night = int(input("Night transaction? (1/0): "))
-failed_attempts = int(input("Failed attempts: "))
+    input_array = np.array(input_data).reshape(1, -1)
 
-input_data = [
-    amount, transaction_hour, is_new_receiver,
-    device_mismatch, location_mismatch,
-    transaction_count, avg_amount_deviation,
-    is_night, failed_attempts
-]
+    prediction = model.predict(input_array)
+    probability = model.predict_proba(input_array)
 
-input_array = np.array(input_data).reshape(1, -1)
+    risk_score = round(float(probability[0][1] * 100), 2) 
 
-prediction = model.predict(input_array)
-probability = model.predict_proba(input_array)
+    if risk_score <= 30:
+        risk_level = "SAFE"
+    elif risk_score <= 70:
+        risk_level = "MODERATE"
+    else:
+        risk_level = "HIGH RISK"
+    
+    result = {
+        "prediction": int(prediction[0]),
+        "risk_score": risk_score,
+        "risk_level": risk_level
+    }
 
-risk_score = round(probability[0][1] * 100, 2)   
+    return result
 
-print("\n--- RESULT ---\n")
+if __name__ == "__main__":
+    print("\nEnter Transaction Details:\n")
 
-if prediction[0] == 1:
-    print("Fraudulent Transaction Detected")
-else:
-    print("Safe Transaction")
+    amount = int(input("Enter amount: "))
+    transaction_hour = int(input("Enter hour (0-23): "))
+    is_new_receiver = int(input("New receiver? (1/0): "))
+    device_mismatch = int(input("Device mismatch? (1/0): "))
+    location_mismatch = int(input("Location mismatch? (1/0): "))
+    transaction_count = int(input("Transactions in last hour: "))
+    avg_amount_deviation = int(input("Amount deviation (0-100): "))
+    is_night = int(input("Night transaction? (1/0): "))
+    failed_attempts = int(input("Failed attempts: "))
 
-print("Risk Score:", risk_score, "%")
+    input_data = [
+        amount, transaction_hour, is_new_receiver,
+        device_mismatch, location_mismatch,
+        transaction_count, avg_amount_deviation,
+        is_night, failed_attempts
+    ]
 
-if risk_score <= 30:
-    print("Risk Level: SAFE")
-elif risk_score <= 70:
-    print("Risk Level: MODERATE")
-else:
-    print("Risk Level: HIGH RISK - BLOCK TRANSACTION")
+    result = predict_risk(input_data)
 
-print("\n(Note: Risk score is based on transaction behavior patterns)\n")
+    print("\n--- RESULT ---\n")
+    print(result)
