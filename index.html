@@ -204,6 +204,7 @@
           <span id="pwdStrengthText" class="muted" style="font-size:11px; display:block; margin-bottom:15px;">Min 8 chars, 1 uppercase, 1 number, 1 special</span>
           
           <input type="password" id="regConfirmPassword" placeholder="Confirm Passcode" class="neo-input" />
+          <input type="password" id="regTxnPin" placeholder="Transaction PIN (4 digits)" class="neo-input" maxlength="4" />
           <button class="process-btn" onclick="app.registerSendOtp()">ACQUIRE OTP</button>
           <div class="auth-links">
             <span onclick="app.navigate('user-login')">Existing Identity? Login</span>
@@ -299,7 +300,13 @@
         <h2 class="auth-title">SECURE TRANSFER INITIATION</h2>
         <p class="auth-sub">System verifies telemetry in background.</p>
         <div class="auth-form" id="txn-form">
-          <input type="text" id="txnReceiver" placeholder="Receiver ID / Name" class="neo-input" />
+          <input type="text" id="txnReceiver" placeholder="Receiver name or phone" class="neo-input" oninput="app.detectReceiverProfile()" />
+          <div class="receiver-info-card" id="receiverInfoCard" style="display:none;">
+            <div class="receiver-chip"><strong>Name:</strong> <span id="detectedReceiverName">-</span></div>
+            <div class="receiver-chip"><strong>Phone:</strong> <span id="detectedReceiverPhone">-</span></div>
+            <div class="receiver-chip"><strong>Beneficiary Type:</strong> <span id="detectedReceiverType">-</span></div>
+            <div class="receiver-chip"><strong>Risk Age:</strong> <span id="detectedReceiverAge">-</span></div>
+          </div>
           <input type="number" id="txnAmount" placeholder="Amount (USD)" class="neo-input" />
           
           <select id="txnPaymentType" class="neo-input">
@@ -307,22 +314,7 @@
              <option value="Bank Transfer">Bank Transfer</option>
              <option value="Wallet">Wallet</option>
           </select>
-          
-          <div style="display:flex; gap:10px;">
-              <select id="txnReceiverAge" class="neo-input" style="flex:1">
-                 <option value="" disabled selected>Receiver Age</option>
-                 <option value="New">New</option>
-                 <option value="Less than 6 months">Less than 6 months</option>
-                 <option value="Established">Established</option>
-              </select>
-              
-              <select id="txnReceiverType" class="neo-input" style="flex:1">
-                 <option value="" disabled selected>Beneficiary Type</option>
-                 <option value="New">New</option>
-                 <option value="Saved">Saved Beneficiary</option>
-              </select>
-          </div>
-          
+
           <div class="hidden-telemetry">
             <small>Background Telemetry (Silent Collection):</small>
             <div class="tel-grid">

@@ -65,13 +65,15 @@ const app = {
    async registerSendOtp() {
        const email = document.getElementById('regEmail').value;
        const mobile = document.getElementById('regMobile').value;
+       const txnPin = document.getElementById('regTxnPin').value;
        if(!email || !mobile) return alert("Email and Mobile required!");
+       if(!txnPin || txnPin.length !== 4) return alert("Transaction PIN must be 4 digits.");
        
        try {
            const res = await fetch('/api/auth/send-otp', {
                method: 'POST',
                headers: {'Content-Type': 'application/json'},
-               body: JSON.stringify({ email, mobile })
+               body: JSON.stringify({ email, mobile, txn_pin: txnPin })
            });
            const data = await res.json();
            if(res.ok) {
@@ -91,6 +93,7 @@ const app = {
            dob: document.getElementById('regDob').value,
            city: document.getElementById('regCity').value,
            password: document.getElementById('regPassword').value,
+           txn_pin: document.getElementById('regTxnPin').value,
            otp: document.getElementById('regOtp').value
        };
        const res = await fetch('/api/auth/register', {
@@ -420,16 +423,20 @@ const app = {
        const amount = document.getElementById('txnAmount').value;
        const receiver_id = document.getElementById('txnReceiver').value;
        const payment_type = document.getElementById('txnPaymentType').value;
-       const receiver_age = document.getElementById('txnReceiverAge').value;
-       const receiver_type = document.getElementById('txnReceiverType').value;
 
        if(!amount || !receiver_id) return alert('Enter amount and receiver');
-       if(!receiver_age || receiver_age === '') return alert('Please select receiver age');
-       if(!receiver_type || receiver_type === '') return alert('Please select beneficiary type');
+       this.detectReceiverProfile();
+       if(!this.pendingReceiver) return alert('Unable to determine receiver profile.');
 
        // Store transaction data for later use
        this.pendingTransaction = {
-           amount, receiver_id, payment_type, receiver_age, receiver_type
+           amount,
+           receiver_id,
+           payment_type,
+           receiver_name: this.pendingReceiver.detectedName,
+           receiver_phone: this.pendingReceiver.detectedPhone,
+           receiver_age: this.pendingReceiver.detectedAge,
+           receiver_type: this.pendingReceiver.detectedType
        };
 
        // Show security key modal
@@ -452,6 +459,72 @@ const app = {
        // Hide modal and proceed with transaction
        document.getElementById('security-key-modal').style.display = 'none';
        await this.proceedWithTransaction(securityKey);
+   },
+
+   detectReceiverProfile() {
+       const input = document.getElementById('txnReceiver').value.trim();
+       const card = document.getElementById('receiverInfoCard');
+       const nameEl = document.getElementById('detectedReceiverName');
+       const phoneEl = document.getElementById('detectedReceiverPhone');
+       const typeEl = document.getElementById('detectedReceiverType');
+       const ageEl = document.getElementById('detectedReceiverAge');
+
+       if(!input) {
+           card.style.display = 'none';
+           this.pendingReceiver = null;
+           return;
+       }
+
+       const digits = input.replace(/\D/g, '');
+       const isPhone = digits.length >= 7;
+       let detectedName = '';
+       let detectedPhone = '';
+
+       if(isPhone) {
+           detectedPhone = digits.length === 10 ? `${digits.slice(0,3)}-${digits.slice(3,6)}-${digits.slice(6)}` : digits;
+           detectedName = this.lookupReceiverName(digits) || `Beneficiary ${digits.slice(-4)}`;
+       } else {
+           detectedName = input;
+           detectedPhone = this.lookupReceiverPhone(input) || `+91 ${Math.floor(900000000 + Math.random() * 100000000)}`;
+       }
+
+       const detectedType = isPhone ? 'Saved Beneficiary' : 'New Beneficiary';
+       const detectedAge = this.guessReceiverAge(input, isPhone);
+
+       this.pendingReceiver = {
+           detectedName,
+           detectedPhone,
+           detectedType,
+           detectedAge
+       };
+
+       nameEl.textContent = detectedName;
+       phoneEl.textContent = detectedPhone;
+       typeEl.textContent = detectedType;
+       ageEl.textContent = detectedAge;
+       card.style.display = 'grid';
+   },
+
+   lookupReceiverName(phone) {
+       const lookup = {
+           '9876543210': 'Kavya Rao',
+           '9123456789': 'Rohit Singh'
+       };
+       return lookup[phone];
+   },
+
+   lookupReceiverPhone(name) {
+       const lookup = {
+           'Kavya Rao': '+91 98765 43210',
+           'Rohit Singh': '+91 91234 56789'
+       };
+       return lookup[name];
+   },
+
+   guessReceiverAge(input, isPhone) {
+       const patterns = ['New', 'Less than 6 months', 'Established'];
+       if(isPhone) return patterns[input.length % patterns.length];
+       return patterns[input.length % patterns.length];
    },
 
    async proceedWithTransaction(securityKey) {
@@ -537,6 +610,8 @@ const app = {
            document.getElementById('security-key-modal').style.display = 'none';
            document.getElementById('txnAmount').value = '';
            document.getElementById('txnReceiver').value = '';
+           document.getElementById('receiverInfoCard').style.display = 'none';
+           this.pendingReceiver = null;
        }, 1000);
    }
 };
