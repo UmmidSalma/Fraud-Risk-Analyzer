@@ -861,3 +861,24 @@ body {
     font-size: 16px;
   }
 }
+
+/* ---- MODAL ---- */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex;
+  justify-content: center; align-items: center; z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: linear-gradient(145deg, rgba(26, 15, 48, 0.95), rgba(16, 6, 30, 0.95));
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 18px; padding: 40px;
+  max-width: 420px; width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}

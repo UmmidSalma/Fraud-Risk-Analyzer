@@ -417,20 +417,49 @@ const app = {
 
    // Core feature: Transaction Flow
    async initiateTransaction() {
-       const fw = document.getElementById('txn-form');
-       const sc = document.getElementById('txn-scan-ui');
-       const vf = document.getElementById('txn-verify-ui');
-
        const amount = document.getElementById('txnAmount').value;
        const receiver_id = document.getElementById('txnReceiver').value;
        const payment_type = document.getElementById('txnPaymentType').value;
        const receiver_age = document.getElementById('txnReceiverAge').value;
        const receiver_type = document.getElementById('txnReceiverType').value;
-       const security_key = document.getElementById('txnSecurityKey').value;
 
        if(!amount || !receiver_id) return alert('Enter amount and receiver');
-       if(!security_key) return alert('Transaction Security Key is required');
-       if(security_key.length < 4) return alert('Security Key must be at least 4 characters');
+       if(!receiver_age || receiver_age === '') return alert('Please select receiver age');
+       if(!receiver_type || receiver_type === '') return alert('Please select beneficiary type');
+
+       // Store transaction data for later use
+       this.pendingTransaction = {
+           amount, receiver_id, payment_type, receiver_age, receiver_type
+       };
+
+       // Show security key modal
+       document.getElementById('security-key-modal').style.display = 'flex';
+       document.getElementById('modalSecurityKey').focus();
+   },
+
+   cancelSecurityKeyModal() {
+       document.getElementById('security-key-modal').style.display = 'none';
+       document.getElementById('modalSecurityKey').value = '';
+       this.pendingTransaction = null;
+   },
+
+   async verifySecurityKey() {
+       const securityKey = document.getElementById('modalSecurityKey').value;
+
+       if(!securityKey) return alert('Enter security key');
+       if(securityKey.length < 4) return alert('Security key must be at least 4 characters');
+
+       // Hide modal and proceed with transaction
+       document.getElementById('security-key-modal').style.display = 'none';
+       await this.proceedWithTransaction(securityKey);
+   },
+
+   async proceedWithTransaction(securityKey) {
+       const fw = document.getElementById('txn-form');
+       const sc = document.getElementById('txn-scan-ui');
+       const vf = document.getElementById('txn-verify-ui');
+       
+       if(!this.pendingTransaction) return alert('Transaction data lost');
 
        fw.style.display = 'none';
        sc.style.display = 'block';
@@ -445,7 +474,8 @@ const app = {
 
        // Actual API Call to AI Engine
        const payload = {
-           amount, payment_type, receiver_id, receiver_age, receiver_type, security_key,
+           ...this.pendingTransaction,
+           security_key: securityKey,
            location_changed: false, // simulated
            device_trust_flag: true, // simulated based on current auth
            velocity_ms: Math.random() > 0.8 ? 500 : 5000 // randomly simulate bot velocity sometimes
@@ -491,6 +521,8 @@ const app = {
 
        if(res.ok) {
            this.navigate('user-transaction-result');
+           this.pendingTransaction = null;
+           document.getElementById('modalSecurityKey').value = '';
            this.resetTxnForm();
        } else {
            alert(res.error);
@@ -502,6 +534,7 @@ const app = {
            document.getElementById('txn-form').style.display = 'block';
            document.getElementById('txn-scan-ui').style.display = 'none';
            document.getElementById('txn-verify-ui').style.display = 'none';
+           document.getElementById('security-key-modal').style.display = 'none';
            document.getElementById('txnAmount').value = '';
            document.getElementById('txnReceiver').value = '';
        }, 1000);

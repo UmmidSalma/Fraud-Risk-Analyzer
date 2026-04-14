@@ -322,8 +322,6 @@
                  <option value="Saved">Saved Beneficiary</option>
               </select>
           </div>
-
-          <input type="password" id="txnSecurityKey" placeholder="Transaction Security Key" class="neo-input" />
           
           <div class="hidden-telemetry">
             <small>Background Telemetry (Silent Collection):</small>
@@ -350,6 +348,19 @@
            <p class="mb-1" id="txn-ai-result">[AI Engine]</p>
            <input type="text" id="txnOtp" placeholder="Enter System OTP / PIN" class="neo-input" />
            <button class="process-btn" onclick="app.finalizeTransaction()">CONFIRM TRANSFER</button>
+        </div>
+      </div>
+
+      <!-- SECURITY KEY MODAL -->
+      <div id="security-key-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+          <h3 class="auth-title">VERIFY SECURITY KEY</h3>
+          <p class="muted mb-1" style="font-size: 14px;">Enter your 4-digit or longer Transaction Security Key to proceed.</p>
+          <input type="password" id="modalSecurityKey" placeholder="Transaction Security Key" class="neo-input" />
+          <div style="display: flex; gap: 12px; margin-top: 24px;">
+            <button class="scan-btn" onclick="app.cancelSecurityKeyModal()">CANCEL</button>
+            <button class="process-btn" style="flex: 1;" onclick="app.verifySecurityKey()">VERIFY & PROCEED</button>
+          </div>
         </div>
       </div>
     </section>
