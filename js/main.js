@@ -6,8 +6,8 @@
 const app = {
    role: null, // 'user' or 'admin'
    init() {
-       // Start at login
-       this.navigate('user-login');
+       // Start at home page
+       this.navigate('home');
    },
 
    navigate(viewId) {
@@ -161,6 +161,8 @@ const app = {
        }
        
        const histRes = await this.fetchWithAuth('/api/user/history');
+       let weeklyTotals = [0, 0, 0, 0, 0, 0, 0];
+       let weekdayLabels = [];
        if(histRes.ok && histRes.data) {
            const cont = document.getElementById('dashRecentAct');
            cont.innerHTML = '';
@@ -168,6 +170,52 @@ const app = {
                const color = t.status === 'COMPLETED' ? 'neon' : 'warn';
                cont.innerHTML += `<div class="list-row"><span class="txt">Transfer to ${t.receiver_id}</span><span class="txt ${color}">-$${t.amount}</span></div>`;
            });
+           const today = new Date();
+           const startDate = new Date(today);
+           startDate.setHours(0, 0, 0, 0);
+           startDate.setDate(startDate.getDate() - 6);
+           for(let i = 0; i < 7; i++) {
+               const labelDate = new Date(startDate);
+               labelDate.setDate(startDate.getDate() + i);
+               weekdayLabels.push(labelDate.toLocaleDateString('en-US', { weekday: 'short' }));
+           }
+           histRes.data.forEach(t => {
+               const txDate = new Date(t.timestamp || t.created_at || t.date);
+               if(isNaN(txDate)) return;
+               txDate.setHours(0, 0, 0, 0);
+               const diffDays = Math.round((txDate - startDate) / (1000 * 60 * 60 * 24));
+               if(diffDays >= 0 && diffDays < 7) {
+                   weeklyTotals[diffDays] += Number(t.amount || 0);
+               }
+           });
+       }
+
+       const volumeBars = document.querySelectorAll('.bar-fill');
+       if(volumeBars.length) {
+           const maxValue = Math.max(...weeklyTotals, 1);
+           volumeBars.forEach((bar, index) => {
+               const value = Math.round(weeklyTotals[index] || 0);
+               const height = Math.min(100, Math.max(12, Math.round((value / maxValue) * 100)));
+               bar.style.height = `${height}%`;
+               bar.style.animationDelay = `${index * 0.08}s`;
+               const label = bar.querySelector('span');
+               if(label) label.textContent = value > 0 ? `$${value}` : '—';
+               const dayLabel = bar.nextElementSibling;
+               if(dayLabel && dayLabel.tagName === 'SMALL') {
+                   dayLabel.textContent = weekdayLabels[index];
+               }
+           });
+       }
+       const gauge = document.querySelector('.gauge-fill');
+       if(gauge) {
+           const percent = Math.min(100, Math.max(35, Math.round((weeklyTotals.reduce((sum, v) => sum + v, 0) / 700) * 100)));
+           const radius = 50;
+           const circumference = 2 * Math.PI * radius;
+           gauge.style.strokeDasharray = `${circumference} ${circumference}`;
+           const offset = circumference - (percent / 100) * circumference;
+           setTimeout(() => { gauge.style.strokeDashoffset = offset; }, 100);
+           const gaugeText = document.getElementById('gaugeValue');
+           if(gaugeText) gaugeText.textContent = `${percent}%`;
        }
    },
    

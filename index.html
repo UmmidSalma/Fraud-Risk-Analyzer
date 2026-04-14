@@ -10,12 +10,7 @@
 </head>
 <body>
 
-  <!-- BACKGROUND LOCK GRAPHIC -->
-  <div class="bg-lock-graphic">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M12 2a5 5 0 0 0-5 5v4H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-2V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v4H9V7zm3 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"/>
-    </svg>
-  </div>
+
 
   <!-- HEADER -->
   <header class="header">
@@ -38,6 +33,126 @@
 
   <!-- MAIN APP CONTAINER -->
   <main class="container app-container" id="app-root">
+
+    <!-- ==================== HOME PAGE ==================== -->
+    <section id="view-home" class="page-view active">
+      <!-- HERO VIDEO SECTION -->
+      <div class="hero-container">
+        <div class="video-wrapper">
+          <div class="hero-graph-block">
+            <div class="hero-graph-header">
+              <div>
+                <span class="graph-tag">Live transaction flow</span>
+                <h3>Payments accelerating upward</h3>
+              </div>
+            </div>
+            <div class="hero-graph-display">
+              <svg viewBox="0 0 700 300" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="homeAreaFade" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(217,70,239,0.35)" />
+                    <stop offset="100%" stop-color="rgba(26,15,48,0.04)" />
+                  </linearGradient>
+                </defs>
+                <path class="home-area" d="M10,260 L110,230 L210,210 L310,170 L410,140 L510,120 L610,70 L690,50 L700,50 L700,300 L0,300 Z" />
+                <path class="home-line" d="M10,260 L110,230 L210,210 L310,170 L410,140 L510,120 L610,70 L690,50" />
+                <circle class="home-point" cx="10" cy="260" />
+                <circle class="home-point" cx="110" cy="230" />
+                <circle class="home-point" cx="210" cy="210" />
+                <circle class="home-point" cx="310" cy="170" />
+                <circle class="home-point" cx="410" cy="140" />
+                <circle class="home-point" cx="510" cy="120" />
+                <circle class="home-point" cx="610" cy="70" />
+                <circle class="home-point" cx="690" cy="50" />
+              </svg>
+              <div class="hero-graph-axis">
+                <span>Mon</span>
+                <span>Tue</span>
+                <span>Wed</span>
+                <span>Thu</span>
+                <span>Fri</span>
+                <span>Sat</span>
+                <span>Sun</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-content">
+          <h1 class="hero-title" >SECUREWITH <span class="glow-text">.AI</span></h1>
+          <p class="hero-subtitle">AI-Powered Real-Time Digital Payment Fraud & Risk Analyzer</p>
+          <div class="hero-buttons">
+            <button class="btn-primary" onclick="app.navigate('user-login')">LOGIN</button>
+            <button class="btn-secondary" onclick="app.navigate('user-register')">REGISTER</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEATURES SECTION -->
+      <div class="features-section">
+        <h2 class="section-heading">ADVANCED FEATURES</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Real-Time Risk Scoring</h3>
+            <p>Assign AI-based risk scores from 0–100 to every transaction instantly.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🕵️‍♂️</div>
+            <h3>Suspicious Activity Detection</h3>
+            <p>Spot device mismatch, location anomalies, and abnormal spending patterns.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🚫</div>
+            <h3>Auto-Block High-Risk Flows</h3>
+            <p>Auto-block risky transactions and notify via Email, SMS, and in-app alerts.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔁</div>
+            <h3>Continuous Learning</h3>
+            <p>Update behavior profiles continuously to improve detection accuracy over time.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>Admin Oversight Dashboard</h3>
+            <p>Monitor fraud, block accounts, and retrain the AI model from a unified console.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- INFO SECTION -->
+      <div class="info-section">
+        <div class="info-content">
+          <h2>Why SecureWith.AI?</h2>
+          <div class="info-grid-2">
+            <div class="info-item">
+              <h4>🎯 Precision Detection</h4>
+              <p>Our neural engine combines XGBoost, LSTM, Isolation Forests, and Autoencoders to achieve unparalleled fraud detection accuracy</p>
+            </div>
+            <div class="info-item">
+              <h4>🚀 Ultra-Low Latency</h4>
+              <p>Process transactions in just 12 milliseconds with our optimized AI infrastructure</p>
+            </div>
+            <div class="info-item">
+              <h4>📱 Device Fingerprinting</h4>
+              <p>Silent behavioral analysis and geolocation tracking to identify suspicious patterns</p>
+            </div>
+            <div class="info-item">
+              <h4>💼 Enterprise Ready</h4>
+              <p>Built for financial institutions with comprehensive audit trails and compliance reporting</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA SECTION -->
+      <div class="cta-section">
+        <div class="cta-content">
+          <h2>Ready to Secure Your Transactions?</h2>
+          <p>Join thousands of users protecting their digital payments with our advanced AI technology</p>
+          <button class="btn-large" onclick="app.navigate('user-register')">GET STARTED NOW</button>
+        </div>
+      </div>
+    </section>
 
     <!-- ==================== USER VIEWS ==================== -->
     
@@ -128,6 +243,48 @@
              <div class="metric-value neon">ACTIVE</div>
          </div>
       </div>
+
+      <div class="grid-main mb-2 dashboard-visuals">
+         <div class="card chart-card">
+             <div class="section-label">Weekly Transfer Volume</div>
+             <div class="chart-label-row">
+               <span>Transfers (USD)</span>
+               <span class="muted">Last 7 days</span>
+             </div>
+             <div class="chart-bar-grid" id="volumeBars">
+               <div class="bar-column"><div class="bar-fill" data-value="65"><span>65</span></div><small>Mon</small></div>
+               <div class="bar-column"><div class="bar-fill" data-value="88"><span>88</span></div><small>Tue</small></div>
+               <div class="bar-column"><div class="bar-fill" data-value="77"><span>77</span></div><small>Wed</small></div>
+               <div class="bar-column"><div class="bar-fill" data-value="98"><span>98</span></div><small>Thu</small></div>
+               <div class="bar-column"><div class="bar-fill" data-value="110"><span>110</span></div><small>Fri</small></div>
+               <div class="bar-column"><div class="bar-fill" data-value="92"><span>92</span></div><small>Sat</small></div>
+               <div class="bar-column"><div class="bar-fill" data-value="104"><span>104</span></div><small>Sun</small></div>
+             </div>
+             <div class="chart-meta">
+               <span>Peak activity on Friday</span>
+               <span class="neon">+18% week-over-week</span>
+             </div>
+         </div>
+         <div class="card chart-card gauge-card-wrapper">
+             <div class="section-label">AI Risk Confidence</div>
+             <div class="chart-label-row">
+               <span>Confidence Score</span>
+               <span class="muted">Live detection health</span>
+             </div>
+             <div class="gauge-ring">
+               <svg viewBox="0 0 120 120" class="gauge-svg">
+                 <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
+                 <circle class="gauge-fill" cx="60" cy="60" r="50"></circle>
+               </svg>
+               <div class="gauge-value"><span id="gaugeValue">92%</span><small>secure</small></div>
+             </div>
+             <div class="chart-meta">
+               <span>Transaction safety rating</span>
+               <span class="neon">Stable</span>
+             </div>
+         </div>
+      </div>
+
       <div class="card">
          <h3 class="section-label">Recent Activity <span class="action-text" onclick="app.navigate('user-transaction-history')">View All</span></h3>
          <div class="list-table" id="dashRecentAct">
@@ -304,12 +461,13 @@
 
     <!-- 9. ADMIN LOGIN -->
     <section id="view-admin-login" class="page-view">
-      <div class="auth-card" style="border-color: var(--danger)">
+      <div class="auth-card admin-auth-card">
         <h2 class="auth-title danger-c">PRIME DIRECTIVE OVERRIDE</h2>
+        <p class="auth-sub">Authorized access only. Validate credential matrix before entry.</p>
         <div class="auth-form">
           <input type="text" placeholder="Admin Clearance Code" value="root" class="neo-input" />
           <input type="password" placeholder="Passcode (Pre-Hashed Check)" value="admin" class="neo-input" />
-          <button class="process-btn" style="background:var(--danger)" onclick="app.login('admin')">BYPASS NEURAL LOCK</button>
+          <button class="process-btn neon-btn" onclick="app.login('admin')">BYPASS NEURAL LOCK</button>
           <div class="auth-links">
             <span onclick="app.navigate('user-login')">Return to Citizen Portal</span>
           </div>
@@ -319,8 +477,16 @@
 
     <!-- 10. ADMIN DASHBOARD -->
     <section id="view-admin-dashboard" class="page-view">
-      <div class="header-row mb-2">
-        <h2>PRIME OVERSIGHT DASHBOARD</h2>
+      <div class="admin-hero-panel mb-2">
+        <div>
+          <p class="section-label">PRIME OVERSIGHT SYSTEM</p>
+          <h2>SecureOps Command Center</h2>
+          <p class="muted">Monitor flagged transactions, risk exposures, and AI confidence in real-time.</p>
+        </div>
+        <div class="admin-hero-badges">
+          <span class="status-pill danger-c">Critical Watch</span>
+          <span class="status-pill neon">AI Live</span>
+        </div>
       </div>
        <div class="grid-4 mb-2">
          <div class="card metric-card">
