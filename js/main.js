@@ -426,8 +426,11 @@ const app = {
        const payment_type = document.getElementById('txnPaymentType').value;
        const receiver_age = document.getElementById('txnReceiverAge').value;
        const receiver_type = document.getElementById('txnReceiverType').value;
+       const security_key = document.getElementById('txnSecurityKey').value;
 
        if(!amount || !receiver_id) return alert('Enter amount and receiver');
+       if(!security_key) return alert('Transaction Security Key is required');
+       if(security_key.length < 4) return alert('Security Key must be at least 4 characters');
 
        fw.style.display = 'none';
        sc.style.display = 'block';
@@ -442,7 +445,7 @@ const app = {
 
        // Actual API Call to AI Engine
        const payload = {
-           amount, payment_type, receiver_id, receiver_age, receiver_type,
+           amount, payment_type, receiver_id, receiver_age, receiver_type, security_key,
            location_changed: false, // simulated
            device_trust_flag: true, // simulated based on current auth
            velocity_ms: Math.random() > 0.8 ? 500 : 5000 // randomly simulate bot velocity sometimes
