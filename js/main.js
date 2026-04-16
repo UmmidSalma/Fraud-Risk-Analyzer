@@ -553,37 +553,83 @@ const app = {
            device_trust_flag: true, // simulated based on current auth
            velocity_ms: Math.random() > 0.8 ? 500 : 5000 // randomly simulate bot velocity sometimes
        };
-
-       const res = await this.fetchWithAuth('/api/txn/process', { method: 'POST', body: JSON.stringify(payload) });
        
+const now = new Date();
+const hour = now.getHours();
+
+const amount = parseInt(this.pendingTransaction.amount);
+
+// ✅ 1. Receiver logic (already good)
+const isNewReceiver = this.pendingReceiver.detectedType === "New Beneficiary" ? 1 : 0;
+
+// ✅ 2. Device mismatch (simulate based on session trust)
+const deviceMismatch = Math.random() > 0.8 ? 1 : 0;  // rare case
+
+// ✅ 3. Location mismatch (simulate uncommon scenario)
+const locationMismatch = Math.random() > 0.7 ? 1 : 0;
+
+// ✅ 4. Transaction count (based on realistic user behavior)
+const transactionCount = amount > 50000 ? 5 : 1;
+
+// ✅ 5. Amount deviation (VERY IMPORTANT FEATURE)
+let avgAmountDeviation = 0;
+if (amount > 100000) avgAmountDeviation = 90;
+else if (amount > 50000) avgAmountDeviation = 70;
+else if (amount > 10000) avgAmountDeviation = 40;
+else avgAmountDeviation = 10;
+
+// ✅ 6. Night detection (real logic)
+const isNight = (hour < 6 || hour > 22) ? 1 : 0;
+
+// ✅ 7. Failed attempts (simulate suspicious retries)
+const failedAttempts = (amount > 50000 && isNewReceiver) ? 2 : 0;
+
+// FINAL DATA SENT TO ML
+const data = {
+    amount: amount,
+    transaction_hour: hour,
+    is_new_receiver: isNewReceiver,
+    device_mismatch: deviceMismatch,
+    location_mismatch: locationMismatch,
+    transaction_count: transactionCount,
+    avg_amount_deviation: avgAmountDeviation,
+    is_night: isNight,
+    failed_attempts: failedAttempts
+};
+
+console.log("DATA SENT TO MODEL:", data);
+    
+    const response = await fetch("http://localhost:5000/predict", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+    
+    const result = await response.json();     
+
        clearInterval(interval);
        sc.style.display = 'none';
-
-       if(res.ok) {
-           const { status, risk_score, risk_level, message, reasons, txnId, server_mock_otp } = res.data;
-           window.currentTxnId = txnId;
-           window.mockRealOtp = server_mock_otp;
-
-           if(status === 'BLOCKED') {
-               // High Risk => Block immediately
-               alert(`🚨 HIGH RISK BLOCKED (${risk_score}%)\nReason: ${reasons}`);
-               this.navigate('user-dashboard'); // kick back to dash
-               this.resetTxnForm();
-           } else if(status === 'PAUSED_OTP') {
-               // Moderate Risk => Pause for OTP
-               vf.style.display = 'block';
-               const resEl = document.getElementById('txn-ai-result');
-               resEl.textContent = `[AI Engine: Risk score ${risk_score}% - ${message}]`;
-               resEl.className = 'warn mb-1';
-           } else {
-               // Safe => Process immediately
-               this.navigate('user-transaction-result');
-               this.resetTxnForm();
-           }
-       } else {
-           alert(res.error || 'Failed to process transaction');
-           this.resetTxnForm();
-       }
+       
+       const risk_score = result.risk_score;
+       const risk_level = result.risk_level;
+       
+       if (risk_level === "HIGH RISK") {
+        alert(`🚨 HIGH RISK BLOCKED (${risk_score}%)`);
+        this.navigate('user-dashboard');
+    }
+    
+    else if (risk_level === "MODERATE") {
+        vf.style.display = 'block';
+        document.getElementById('txn-ai-result').textContent =
+        `Risk Score: ${risk_score}% (${risk_level})`;
+    }
+    
+    else {
+        this.navigate('user-transaction-result');
+    }
+    this.resetTxnForm();
    },
 
    async finalizeTransaction() {
