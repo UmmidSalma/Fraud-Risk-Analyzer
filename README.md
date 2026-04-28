@@ -1,4 +1,4 @@
-# Sentinel Kinetic — AI Fraud Detector Frontend
+AI Fraud Detector Frontend
 
 A dark, animated frontend dashboard for an AI-Based Real-Time Digital Payment Fraud & Risk Analyzer.
 
