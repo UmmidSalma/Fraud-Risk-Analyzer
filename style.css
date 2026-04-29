@@ -152,11 +152,10 @@
 html { scroll-behavior: smooth; }
 body {
   background-color: var(--bg);
-  background-image: linear-gradient(rgba(5, 2, 10, 0.5), rgba(5, 2, 10, 0.5)), url('../1.jpg');
+  background-image: linear-gradient(rgba(5, 2, 10, 0.7), rgba(5, 2, 10, 0.7)), url('./1.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  background-repeat: no-repeat;
   font-family: 'Rajdhani', sans-serif;
   color: var(--text); min-height: 100vh;
   font-size: 15px; overflow-x: hidden; display: flex; flex-direction: column;
@@ -176,7 +175,7 @@ body {
 }
 .header-left { display: flex; align-items: center; gap: 28px; }
 .logo { 
-  font-size: 22px; font-weight: 900; letter-spacing: 3px; 
+  font-size: 22px; font-weight: 700; letter-spacing: 3px; 
   color: #ffffff;
   animation: colorShift 3s ease-in-out infinite;
   user-select: none;
@@ -195,14 +194,14 @@ body {
   filter: none;
 }
 .nav { display: flex; gap: 24px; }
-.nav-item { font-size: 14px; letter-spacing: 2px; color: var(--muted); cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent; transition: .3s; border-radius: 4px; font-weight: 700; }
+.nav-item { font-size: 14px; letter-spacing: 2px; color: var(--muted); cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent; transition: .3s; border-radius: 4px; font-weight: 500; }
 .nav-item:hover { color: var(--neon); background: rgba(217, 70, 239, 0.15); border-bottom-color: var(--neon); }
 .nav-item.active { color: var(--neon); border-bottom-color: var(--neon); background: rgba(217, 70, 239, 0.15); }
 
 .header-right { display: flex; align-items: center; gap: 20px; }
 .status-indicator { display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: rgba(217, 70, 239, 0.1); border-radius: 20px; border: 1px solid rgba(217, 70, 239, 0.3); }
 .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); animation: dotBlink 1.5s infinite; box-shadow: 0 0 10px var(--green); }
-.status-text { font-size: 12px; letter-spacing: 2px; color: var(--green); font-weight: 800; text-transform: uppercase; }
+.status-text { font-size: 12px; letter-spacing: 2px; color: var(--green); font-weight: 600; text-transform: uppercase; }
 .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); transition: .3s; background: rgba(217, 70, 239, 0.05); }
 .icon-btn:hover { color: var(--neon); border-color: var(--neon); background: rgba(217, 70, 239, 0.2); box-shadow: 0 0 15px rgba(217, 70, 239, 0.3); }
 
@@ -253,7 +252,7 @@ body {
 .neon-btn:hover {
   background: linear-gradient(90deg, #f43f5e 0%, #a855f7 100%);
 }
-.auth-title { font-size: 26px; letter-spacing: 3px; font-weight: 800; text-align: center; margin-bottom: 30px; color: var(--text); }
+.auth-title { font-size: 26px; letter-spacing: 3px; font-weight: 600; text-align: center; margin-bottom: 30px; color: var(--text); }
 .auth-sub { text-align: center; color: var(--muted); font-size: 16px; margin: -10px 0 30px; }
 .auth-form { display: flex; flex-direction: column; gap: 24px; }
 
@@ -268,7 +267,7 @@ body {
 .process-btn {
   width: 100%; padding: 18px; background: linear-gradient(90deg, #c026d3 0%, #7e22ce 100%); color: #fff;
   border: none; border-radius: 8px;
-  font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 900; letter-spacing: 2px;
+  font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 2px;
   cursor: pointer; transition: .3s; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
 }
 .process-btn:hover { background: linear-gradient(90deg, #d946ef 0%, #9333ea 100%); box-shadow: 0 6px 20px rgba(217, 70, 239, 0.8); transform: translateY(-2px); }
@@ -277,7 +276,7 @@ body {
 .scan-btn {
   width: 100%; padding: 10px; background: transparent; color: var(--neon2);
   border: 1px solid var(--neon2); border-radius: 2px;
-  font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 800; letter-spacing: 2px;
+  font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 2px;
   cursor: pointer; transition: .2s;
 }
 .scan-btn:hover { background: rgba(0,191,255,.1); }
@@ -323,12 +322,12 @@ body {
   .metric-card { text-align: center; }
 
   .chart-card {
-    min-height: 480px;
+    min-height: 320px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
-  .fraud-wheel-card { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 22px; min-height: 450px; }
+  .fraud-wheel-card { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 22px; min-height: 310px; }
   .fraud-wheel { filter: drop-shadow(0 0 25px rgba(255, 45, 85, 0.35)); }
   .neo-table tbody tr:hover { background: rgba(168, 85, 247, 0.08); }
   .neo-table tbody tr:nth-child(odd) { background: rgba(255, 255, 255, 0.02); }
@@ -338,7 +337,7 @@ body {
   .gauge-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 10; }
   .gauge-fill { fill: none; stroke: var(--neon); stroke-width: 10; stroke-linecap: round; stroke-dasharray: 314; stroke-dashoffset: 94; transition: stroke-dashoffset .8s ease; }
   .gauge-value { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: 'Share Tech Mono', monospace; color: #fff; }
-  .gauge-value span { font-size: 32px; font-weight: 900; letter-spacing: 1px; }
+  .gauge-value span { font-size: 26px; font-weight: 700; }
   .gauge-value small { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; letter-spacing: 1px; }
 
 .chart-bar-grid {
@@ -346,8 +345,8 @@ body {
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  height: 350px;
-  padding: 24px 12px 48px;
+  height: 240px;
+  padding: 16px 10px 36px;
   border: 1px solid rgba(168, 85, 247, 0.14);
   border-radius: 16px;
   background: rgba(255,255,255,0.02);
@@ -475,14 +474,14 @@ body {
 }
 
 .metric-label { font-size: 14px; letter-spacing: 2px; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; }
-.metric-value { font-size: 44px; font-weight: 900; font-family: 'Share Tech Mono', monospace; text-shadow: 0 0 10px rgba(255,255,255,0.3); letter-spacing: 2px; }
+.metric-value { font-size: 36px; font-weight: 700; font-family: 'Share Tech Mono', monospace; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
 
 /* ---- TABLES & LISTS ---- */
 .section-label { font-size: 12px; letter-spacing: 2px; color: var(--muted); margin-bottom: 16px; text-transform: uppercase; }
 .list-table { display: flex; flex-direction: column; gap: 8px; }
 .list-row { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #060d14; border: 1px solid var(--border); border-radius: 2px; }
 .neo-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.neo-table th { text-align: left; padding: 16px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 15px; letter-spacing: 2px; font-weight: 700; }
+.neo-table th { text-align: left; padding: 16px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 14px; letter-spacing: 2px; font-weight: normal; }
 .neo-table td { padding: 16px 12px; border-bottom: 1px solid var(--border); font-family: 'Share Tech Mono', monospace; }
 
 .hidden-telemetry {
@@ -524,7 +523,7 @@ body {
 .log-line { font-family: 'Share Tech Mono', monospace; font-size: 11px; line-height: 1.6; }
 
 /* ---- ADMIN FRAUD CHART ---- */
-.bar-chart { display: flex; gap: 10px; height: 200px; align-items: flex-end; }
+.bar-chart { display: flex; gap: 10px; height: 120px; align-items: flex-end; }
 .bcol { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .bbar { 
   width: 100%; 
@@ -534,7 +533,7 @@ body {
   transition: .5s ease-out;
 }
 .bbar:hover { background: linear-gradient(to top, rgba(217, 70, 239, 0.4), var(--neon)); box-shadow: 0 0 15px rgba(217, 70, 239, 0.7); }
-.blabel { font-size: 11px; color: var(--muted); font-weight: 700; }
+.blabel { font-size: 10px; color: var(--muted); }
 
 /* ---- FOOTER ---- */
 .statusbar {
@@ -696,7 +695,7 @@ body {
 
 
 .btn-primary, .btn-secondary, .btn-large {
-  padding: 20px 40px; font-size: 18px; font-weight: 900; letter-spacing: 3px;
+  padding: 20px 40px; font-size: 18px; font-weight: 700; letter-spacing: 3px;
   border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;
   font-family: 'Rajdhani', sans-serif;
 }
