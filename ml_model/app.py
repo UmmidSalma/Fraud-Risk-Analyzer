@@ -1,4 +1,8 @@
+import random
+import smtplib
+from email.mime.text import MIMEText
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from predict import predict_risk
 from flask_cors import CORS 
 import random
