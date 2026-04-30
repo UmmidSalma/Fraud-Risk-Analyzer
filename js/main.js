@@ -1,13 +1,19 @@
 const app = {
-  navigate(pageName) {
-    const allPages = document.querySelectorAll('.page-view');
-    allPages.forEach(page => page.classList.remove('active'));
-    const selectedPage = document.getElementById(pageName);
-    if (selectedPage) {
-      selectedPage.classList.add('active');
-      window.scrollTo(0, 0);
-    }
-  },
+navigate(pageName) {
+  const allPages = document.querySelectorAll('.page-view');
+  allPages.forEach(page => page.classList.remove('active'));
+
+  const selectedPage = document.getElementById(pageName);
+  if (selectedPage) {
+    selectedPage.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // ✅ ADD THIS BLOCK
+  if (pageName === 'view-user-transaction') {
+    this.resetTransactionUI();
+  }
+},
   
   loginSubmit() {
     const email = document.getElementById('loginIdentity').value;
@@ -94,23 +100,110 @@ const app = {
     if (/[^a-zA-Z0-9]/.test(password)) strength++;
     return strength;
   },
+
+  resetTransactionUI() {
+  document.getElementById('txn-form').style.display = 'block';
+  document.getElementById('txn-scan-ui').style.display = 'none';
+  document.getElementById('txn-verify-ui').style.display = 'none';
+
+  document.getElementById('txnAmount').value = '';
+  document.getElementById('txnOtp').value = '';
+
+  const btn = document.getElementById('btn-initiate-txn');
+  if (btn) btn.disabled = false;
+},
   
-  initiateTransaction() {
-    const amount = document.getElementById('transaction-amount').value;
-    if (!amount || isNaN(amount) || amount <= 0) {
-      alert('Please enter a valid amount');
-      return;
+  async initiateTransaction() {
+  console.log("🚀 Button clicked");
+
+  const amount = document.getElementById('txnAmount').value;
+
+  if (!amount || isNaN(amount) || amount <= 0) {
+    alert('Please enter a valid amount');
+    return;
+  }
+
+  document.getElementById('txn-form').style.display = 'none';
+  document.getElementById('txn-scan-ui').style.display = 'block';
+  document.getElementById('btn-initiate-txn').disabled = true;
+
+  try {
+    const response = await fetch("http://127.0.0.1:5000/predict", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        amount: parseFloat(amount),
+        transaction_hour: new Date().getHours(),
+        is_new_receiver: 1,
+        device_mismatch: 0,
+        location_mismatch: 0,
+        transaction_count: 3,
+        avg_amount_deviation: 0.2,
+        is_night: 0,
+        failed_attempts: 0
+      })
+    });
+
+    const result = await response.json();   // ✅ MUST come before using result
+    console.log("ML RESULT:", result);
+
+    document.getElementById('txn-scan-ui').style.display = 'none';
+    document.getElementById('txn-verify-ui').style.display = 'block';
+
+    document.getElementById('txn-ai-result').innerText =
+      "Risk: " + result.risk_level + " (" + result.risk_score + "%)";
+
+    const risk = result.risk_level.toUpperCase();
+
+    if (risk.includes("HIGH") || risk.includes("MODERATE")) {
+      console.log("⚠️ Calling OTP API");
+
+      await fetch("http://127.0.0.1:5000/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: localStorage.getItem("userEmail")
+        })
+      });
+
+      console.log("✅ OTP API CALLED");
     }
-    document.getElementById('transaction-form').style.display = 'none';
-    document.getElementById('transaction-verification').style.display = 'block';
-  },
+
+  } catch (error) {
+    console.error(error);
+    alert("Error connecting to backend");
+  }
+},
   
-  finalizeTransaction() {
-    alert('Transaction processed successfully!');
-    document.getElementById('transaction-form').style.display = 'block';
-    document.getElementById('transaction-verification').style.display = 'none';
-    document.getElementById('transaction-amount').value = '';
-  },
+  async finalizeTransaction() {
+  const otp = document.getElementById('txnOtp').value;
+
+  const response = await fetch("http://127.0.0.1:5000/verify-otp", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      otp: otp,
+      email: localStorage.getItem("userEmail")   
+    })
+  });
+
+  const result = await response.json();
+
+  if (result.message === "OTP verified") {
+    alert("✅ Transaction Successful");
+
+    this.navigate('view-user-dashboard');
+  } else {
+    alert("❌ Invalid OTP");
+  }
+},
+
   
   logout() {
     localStorage.removeItem('userEmail');
@@ -161,6 +254,10 @@ const app = {
     alert('Security key verified!');
     document.getElementById('security-key-modal').style.display = 'none';
   },
+
+  detectReceiverProfile() {
+  console.log("Detecting receiver...");
+},
   
   init() {
     // Initialize app - can add startup logic here
