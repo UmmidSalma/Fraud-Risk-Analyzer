@@ -21,6 +21,185 @@
   --green:   #10b981;
 }
 
+body.light-theme,
+.light-theme {
+  --neon:    #2563eb;
+  --neon2:   #0ea5e9;
+  --warn:    #f97316;
+  --danger:  #dc2626;
+  --purple:  #7c3aed;
+  --bg:      #f8fafc;
+  --surface: #ffffff;
+  --surface2:#f8fafc;
+  --border:  #d1d5db;
+  --text:    #111827;
+  --muted:   #6b7280;
+  --green:   #16a34a;
+}
+
+.theme-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+  font-size: 12px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+}
+
+.theme-switcher:hover {
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.16);
+}
+
+.theme-switcher svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  fill: currentColor;
+}
+
+.light-theme .theme-switcher {
+  background: rgba(15, 23, 42, 0.08);
+  border-color: rgba(15, 23, 42, 0.14);
+  color: #1f2937;
+}
+
+.light-theme body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.light-theme .header {
+  background: rgba(255,255,255,0.95);
+  border-bottom-color: rgba(148,163,184,0.2);
+  box-shadow: 0 8px 32px rgba(148,163,184,0.12);
+}
+
+.light-theme .card,
+.light-theme .auth-card,
+.light-theme .feature-card,
+.light-theme .statusbar,
+.light-theme .list-row,
+.light-theme .neo-table th,
+.light-theme .neo-table td,
+.light-theme .hero-graph-block,
+.light-theme .hero-graph-display,
+.light-theme .chart-bar-grid,
+.light-theme .receiver-info-card,
+.light-theme .hidden-telemetry {
+  background: rgba(255,255,255,0.92);
+  border-color: rgba(148,163,184,0.35);
+  box-shadow: 0 10px 30px rgba(148,163,184,0.08);
+  color: var(--text);
+}
+
+/* Light theme heading visibility */
+.light-theme .hero-title,
+.light-theme .section-heading,
+.light-theme .info-content h2,
+.light-theme .cta-content h2,
+.light-theme .admin-hero-panel h2 {
+  color: #111827;
+}
+
+.light-theme .feature-card h3,
+.light-theme .info-item h4 {
+  color: #2563eb;
+}
+
+.light-theme .hero-graph-header h3 {
+  color: #111827;
+}
+
+/* Light theme section backgrounds */
+.light-theme .info-section {
+  background: linear-gradient(145deg, #f0f4f8, #e8ecf1);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.light-theme .cta-section {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(59, 130, 246, 0.08));
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.light-theme .feature-card {
+  background: linear-gradient(145deg, #f8fbff, #f0f4f8);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.light-theme .feature-card p,
+.light-theme .info-item p,
+.light-theme .cta-content p {
+  color: #475569;
+}
+
+.light-theme .neo-input {
+  background: #f3f4f6;
+  border-color: #cbd5e1;
+  color: #111827;
+  box-shadow: none;
+}
+
+.light-theme .neo-input::placeholder {
+  color: #6b7280;
+}
+
+.light-theme .process-btn {
+  background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%);
+  box-shadow: 0 6px 20px rgba(37,99,235,0.25);
+  color: #fff;
+}
+
+.light-theme .process-btn:hover {
+  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+}
+
+.light-theme .btn-secondary {
+  color: #2563eb;
+  border-color: rgba(37,99,235,0.4);
+}
+
+.light-theme .scan-btn {
+  color: #2563eb;
+  border-color: rgba(59,130,246,0.3);
+  background: rgba(59,130,246,0.08);
+}
+
+.light-theme .statusbar {
+  background: #f8fafc;
+  color: var(--muted);
+  border-top-color: #d1d5db;
+}
+
+.light-theme .statusbar .ok {
+  color: var(--neon);
+}
+
+.light-theme .hero-title {
+  color: #111827;
+}
+
+.light-theme .hero-subtitle {
+  background: rgba(220,234,255,0.75);
+  border-color: rgba(96,165,250,0.35);
+  color: #1e293b;
+}
+
+.light-theme .header-right .status-indicator {
+  background: rgba(37,99,235,0.08);
+  border-color: rgba(37,99,235,0.18);
+}
+
+.light-theme .status-dot {
+  box-shadow: 0 0 10px var(--green);
+}
+
 /* ---- VIEW TRANSITIONS (Attractive animations) ---- */
 ::view-transition-group(*),
 ::view-transition-old(*),

@@ -6,6 +6,7 @@
 const app = {
    role: null, // 'user' or 'admin'
    init() {
+       this.applySavedTheme();
        // Start at home page
        this.navigate('home');
    },
@@ -60,6 +61,21 @@ const app = {
            else if (strength <= 75) bar.style.backgroundColor = 'var(--warn)';
            else bar.style.backgroundColor = 'var(--neon)';
        }
+   },
+
+   applySavedTheme() {
+       const theme = localStorage.getItem('siteTheme') || 'dark';
+       document.body.classList.toggle('light-theme', theme === 'light');
+       const label = document.getElementById('themeToggleLabel');
+       if (label) label.textContent = theme === 'light' ? 'DARK' : 'LIGHT';
+   },
+
+   toggleTheme() {
+       const isLight = document.body.classList.toggle('light-theme');
+       const newTheme = isLight ? 'light' : 'dark';
+       localStorage.setItem('siteTheme', newTheme);
+       const label = document.getElementById('themeToggleLabel');
+       if (label) label.textContent = isLight ? 'DARK' : 'LIGHT';
    },
    
    async registerSendOtp() {
@@ -546,16 +562,8 @@ const app = {
        }, 300);
 
        // Actual API Call to AI Engine
-       const payload = {
-           ...this.pendingTransaction,
-           security_key: securityKey,
-           location_changed: false, // simulated
-           device_trust_flag: true, // simulated based on current auth
-           velocity_ms: Math.random() > 0.8 ? 500 : 5000 // randomly simulate bot velocity sometimes
-       };
-       
-const now = new Date();
-const hour = now.getHours();
+       const now = new Date();
+       const hour = now.getHours();
 
 const amount = parseInt(this.pendingTransaction.amount);
 
@@ -584,52 +592,58 @@ const isNight = (hour < 6 || hour > 22) ? 1 : 0;
 // ✅ 7. Failed attempts (simulate suspicious retries)
 const failedAttempts = (amount > 50000 && isNewReceiver) ? 2 : 0;
 
-// FINAL DATA SENT TO ML
-const data = {
-    amount: amount,
-    transaction_hour: hour,
-    is_new_receiver: isNewReceiver,
-    device_mismatch: deviceMismatch,
-    location_mismatch: locationMismatch,
-    transaction_count: transactionCount,
-    avg_amount_deviation: avgAmountDeviation,
-    is_night: isNight,
-    failed_attempts: failedAttempts
+// FINAL DATA SENT TO THE BACKEND
+const payload = {
+    ...this.pendingTransaction,
+    security_key: securityKey,
+    location_changed: false,
+    device_trust_flag: true,
+    velocity_ms: Math.random() > 0.8 ? 500 : 5000,
+    receiver_type: this.pendingReceiver.detectedType,
+    receiver_age: this.pendingReceiver.detectedAge
 };
 
-console.log("DATA SENT TO MODEL:", data);
-    
-    const response = await fetch("http://localhost:5000/predict", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
+let response;
+try {
+    response = await this.fetchWithAuth('/api/txn/process', {
+        method: 'POST',
+        body: JSON.stringify(payload)
     });
-    
-    const result = await response.json();     
-
-       clearInterval(interval);
-       sc.style.display = 'none';
-       
-       const risk_score = result.risk_score;
-       const risk_level = result.risk_level;
-       
-       if (risk_level === "HIGH RISK") {
-        alert(`🚨 HIGH RISK BLOCKED (${risk_score}%)`);
-        this.navigate('user-dashboard');
-    }
-    
-    else if (risk_level === "MODERATE") {
-        vf.style.display = 'block';
-        document.getElementById('txn-ai-result').textContent =
-        `Risk Score: ${risk_score}% (${risk_level})`;
-    }
-    
-    else {
-        this.navigate('user-transaction-result');
-    }
+} catch (err) {
+    clearInterval(interval);
+    sc.style.display = 'none';
+    alert('Unable to reach backend service. Please start the Node backend and the ML model service.');
     this.resetTxnForm();
+    return;
+}
+
+clearInterval(interval);
+sc.style.display = 'none';
+
+if (!response || !response.ok) {
+    alert(response?.error || 'Transaction processing failed.');
+    this.navigate('user-dashboard');
+    this.resetTxnForm();
+    return;
+}
+
+window.currentTxnId = response.data.txnId;
+window.mockRealOtp = response.data.server_mock_otp;
+
+const risk_score = response.data.risk_score;
+const risk_level = response.data.risk_level;
+
+if (risk_level === 'High' || risk_level === 'HIGH RISK') {
+    document.getElementById('blocked-desc').textContent = `This transaction has been blocked due to high fraud risk (Score: ${risk_score}%).`;
+    this.navigate('user-transaction-blocked');
+}
+else if (response.data.status === 'PAUSED_OTP' || risk_level === 'Moderate' || risk_level === 'MODERATE') {
+    vf.style.display = 'block';
+    document.getElementById('txn-ai-result').textContent = `Risk Score: ${risk_score}% (${risk_level})`;
+}
+else if (risk_level === 'Safe' || risk_level === 'SAFE') {
+    this.navigate('user-transaction-result');
+}
    },
 
    async finalizeTransaction() {
@@ -662,6 +676,10 @@ console.log("DATA SENT TO MODEL:", data);
    }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+window.app = app; // expose app to inline event handlers
+
+if (document.readyState === 'loading') {
+   document.addEventListener('DOMContentLoaded', () => app.init());
+} else {
    app.init();
-});
+}

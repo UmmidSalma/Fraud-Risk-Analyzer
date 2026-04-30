@@ -1,7 +1,7 @@
 import pickle
 import numpy as np
 
-with open("ml_model/model/fraud_model.pkl", "rb") as file:
+with open("model/fraud_model.pkl", "rb") as file:
     model = pickle.load(file)
 
 # Fraud Risk Prediction Function (Reusable ML Module)

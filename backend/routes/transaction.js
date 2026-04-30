@@ -32,7 +32,10 @@ function calculateRiskScore(txn, user, currentDeviceId) {
     if (txn.velocity_ms < 1000) { score += 20; reasons.push('Impossible human velocity (Bot suspected)'); }
 
     // 3. New Beneficiary Risk
-    if (txn.receiver_type === 'New') { score += 15; reasons.push('New beneficiary'); }
+    if (typeof txn.receiver_type === 'string' && txn.receiver_type.toLowerCase().includes('new')) {
+        score += 15;
+        reasons.push('New beneficiary');
+    }
     if (txn.receiver_age === 'New') { score += 10; reasons.push('Beneficiary account is very new'); }
 
     // 4. Night-Time Risk
@@ -65,17 +68,56 @@ function calculateRiskScore(txn, user, currentDeviceId) {
     return { score, level, reasons: reasons.join(', ') || 'Normal behavior' };
 }
 
-router.post('/process', (req, res) => {
+async function fetchPythonPrediction(payload) {
+    try {
+        const response = await fetch('http://localhost:5000/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            throw new Error(`Python model returned ${response.status}`);
+        }
+        return await response.json();
+    } catch (err) {
+        console.warn('Python ML model not available, falling back to local heuristic.', err.message);
+        return null;
+    }
+}
+
+router.post('/process', async (req, res) => {
     const { amount, payment_type, receiver_id, receiver_age, receiver_type, location_changed, device_id, device_trust_flag, velocity_ms } = req.body;
     
     // Fetch user settings
-    db.get('SELECT * FROM Users WHERE user_id = ?', [req.user_id], (err, user) => {
+    db.get('SELECT * FROM Users WHERE user_id = ?', [req.user_id], async (err, user) => {
         if (err || !user) return res.status(404).json({ error: 'User not found' });
 
-        const risk = calculateRiskScore({
+        const input = {
             amount: parseFloat(amount),
-            payment_type, receiver_id, receiver_age, receiver_type, location_changed, device_trust_flag, velocity_ms
-        }, user, device_id);
+            transaction_hour: new Date().getHours(),
+            is_new_receiver: (typeof receiver_type === 'string' && receiver_type.toLowerCase().includes('new')) ? 1 : 0,
+            device_mismatch: device_trust_flag === false ? 1 : 0,
+            location_mismatch: location_changed ? 1 : 0,
+            transaction_count: parseFloat(amount) > 50000 ? 5 : 1,
+            avg_amount_deviation: parseFloat(amount) > 100000 ? 90 : parseFloat(amount) > 50000 ? 70 : parseFloat(amount) > 10000 ? 40 : 10,
+            is_night: (new Date().getHours() < 6 || new Date().getHours() > 22) ? 1 : 0,
+            failed_attempts: (parseFloat(amount) > 50000 && receiver_type && receiver_type.toLowerCase().includes('new')) ? 2 : 0
+        };
+
+        let risk = null;
+        const modelResult = await fetchPythonPrediction(input);
+        if (modelResult && modelResult.risk_score !== undefined) {
+            risk = {
+                score: parseFloat(modelResult.risk_score),
+                level: modelResult.risk_level === 'HIGH RISK' ? 'High' : modelResult.risk_level === 'MODERATE' ? 'Moderate' : 'Safe',
+                reasons: modelResult.risk_reason || 'ML model prediction'
+            };
+        } else {
+            risk = calculateRiskScore({
+                amount: parseFloat(amount),
+                payment_type, receiver_id, receiver_age, receiver_type, location_changed, device_trust_flag, velocity_ms
+            }, user, device_id);
+        }
 
         const status = risk.level === 'High' ? 'BLOCKED' : risk.level === 'Moderate' ? 'PAUSED_OTP' : 'COMPLETED';
 
