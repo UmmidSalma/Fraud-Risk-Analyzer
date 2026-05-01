@@ -1,5 +1,6 @@
 import random
 import smtplib
+import traceback
 from email.mime.text import MIMEText
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -43,6 +44,10 @@ def send_otp():
     data = request.json
     email = data.get('email')
 
+    if not email:
+        print("SEND OTP ERROR: missing recipient email")
+        return jsonify({"error": "Recipient email is required"}), 400
+
     otp = str(random.randint(100000, 999999))
     otp_store[email] = otp
 
@@ -61,7 +66,7 @@ def send_otp():
     msg['To'] = email
 
     try:
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=20)
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         server.send_message(msg)
         server.quit()
@@ -69,8 +74,14 @@ def send_otp():
         return jsonify({"message": "OTP sent successfully"})
 
     except Exception as e:
-        print("EMAIL ERROR:", e)
-        return jsonify({"error": "Failed to send OTP"}), 500
+        print("EMAIL ERROR:", repr(e))
+        traceback.print_exc()
+        # Fallback for local development when SMTP credentials or Gmail access is blocked
+        return jsonify({
+            "message": "OTP generated but email send failed",
+            "otp": otp,
+            "warning": "Check SMTP credentials or Gmail app-password/settings"
+        }), 200
     
 
 @app.route('/verify-otp', methods=['POST'])

@@ -4,14 +4,18 @@ from email.mime.text import MIMEText
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from predict import predict_risk
-from flask_cors import CORS 
-import random
 
 app = Flask(__name__)
-CORS(app, origins=["http://127.0.0.1:5500", "http://localhost:5500", "http://127.0.0.1:3000", "http://localhost:3000"])
+CORS(app, supports_credentials=True) # allow all routes
 
-# In-memory storage for OTPs (for demo purposes)
-otp_storage = {}
+otp_store = {}
+
+generated_otp = None
+user_email = None
+
+EMAIL_ADDRESS = "mdivate588@gmail.com"
+EMAIL_PASSWORD = "zhgzqklcxowtxtem"
+
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -33,37 +37,68 @@ def predict():
 
     return jsonify(result)
 
-@app.route("/send-otp", methods=["POST"])
+@app.route('/send-otp', methods=['POST'])
 def send_otp():
+    print("🔥 SEND OTP API HIT")
     data = request.json
-    email = data.get("email")
-    
-    if not email:
-        return jsonify({"error": "Email required"}), 400
-    
-    # Generate a 6-digit OTP
-    otp = str(random.randint(100000, 999999))
-    otp_storage[email] = otp
-    
-    print(f"OTP for {email}: {otp}")  # In real app, this would send email
-    
-    return jsonify({"message": "OTP sent successfully"})
+    email = data.get('email')
 
-@app.route("/verify-otp", methods=["POST"])
+    otp = str(random.randint(100000, 999999))
+    otp_store[email] = otp
+
+    print("OTP GENERATED:", otp)  # for debugging
+
+    if email in otp_store:
+        otp = otp_store[email]   # reuse same OTP
+    else:
+        otp = str(random.randint(100000, 999999))
+        otp_store[email] = otp
+
+    # Email content
+    msg = MIMEText(f"Your OTP is {otp}")
+    msg['Subject'] = "SecureWith.AI OTP"
+    msg['From'] = EMAIL_ADDRESS
+    msg['To'] = email
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+
+        return jsonify({"message": "OTP sent successfully"})
+
+    except Exception as e:
+        print("EMAIL ERROR:", e)
+        return jsonify({"error": "Failed to send OTP"}), 500
+    
+
+@app.route('/verify-otp', methods=['POST'])
 def verify_otp():
     data = request.json
-    email = data.get("email")
-    otp = data.get("otp")
-    
-    if not email or not otp:
-        return jsonify({"error": "Email and OTP required"}), 400
-    
-    stored_otp = otp_storage.get(email)
-    if stored_otp and stored_otp == otp:
-        del otp_storage[email]  # Clear OTP after successful verification
+    email = data.get('email')
+    user_otp = data.get('otp')
+
+    real_otp = otp_store.get(email)
+
+    print("ENTERED:", user_otp)
+    print("STORED:", real_otp)
+
+    if real_otp == user_otp:
         return jsonify({"message": "OTP verified"})
     else:
         return jsonify({"error": "Invalid OTP"}), 400
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    return response   
+
+@app.route("/")
+def home():
+    return "ML Server Running ✅"
 
 if __name__ == "__main__":
     app.run(debug=True)

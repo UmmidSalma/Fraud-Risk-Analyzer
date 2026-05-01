@@ -7,6 +7,8 @@ const app = {
    role: null, // 'user' or 'admin'
    init() {
        this.applySavedTheme();
+       this.userEmail = localStorage.getItem('userEmail') || '';
+       this.pendingTransaction = null;
        // Start at home page
        this.navigate('home');
    },
@@ -86,7 +88,7 @@ const app = {
        if(!txnPin || txnPin.length !== 4) return alert("Transaction PIN must be 4 digits.");
        
        try {
-           const res = await fetch('/api/auth/send-otp', {
+           const res = await fetch('http://localhost:4000/api/auth/register', {
                method: 'POST',
                headers: {'Content-Type': 'application/json'},
                body: JSON.stringify({ email, mobile, txn_pin: txnPin })
@@ -102,27 +104,34 @@ const app = {
    },
    
    async registerSubmit() {
-       const payload = {
-           name: document.getElementById('regName').value,
-           email: document.getElementById('regEmail').value,
-           mobile: document.getElementById('regMobile').value,
-           dob: document.getElementById('regDob').value,
-           city: document.getElementById('regCity').value,
-           password: document.getElementById('regPassword').value,
-           txn_pin: document.getElementById('regTxnPin').value,
-           otp: document.getElementById('regOtp').value
-       };
-       const res = await fetch('/api/auth/register', {
-           method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
-       });
-       if(res.ok) {
-           alert("Registration Successful!");
-           this.navigate('user-login');
-       } else {
-           const data = await res.json();
-           alert(data.error);
-       }
-   },
+    const payload = {
+        name: document.getElementById('regName').value,
+        email: document.getElementById('regEmail').value,
+        mobile: document.getElementById('regMobile').value,
+        password: document.getElementById('regPassword').value,
+        pin: document.getElementById('regTxnPin').value,
+        otp: document.getElementById('regOtp').value,
+        dob: document.getElementById('regDob').value,
+        city: document.getElementById('regCity').value
+    };
+
+    const res = await fetch('http://localhost:4000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+        localStorage.setItem('userEmail', payload.email);
+        this.userEmail = payload.email;
+        alert("Registration Successful!");
+        this.navigate('user-login');
+    } else {
+        alert(data.message || 'Registration failed');
+    }
+},
    
    async loginSubmit() {
        const identity = document.getElementById('loginIdentity').value;
@@ -133,9 +142,9 @@ const app = {
        }
        
        try {
-           const res = await fetch('/api/auth/login', {
+           const res = await fetch('http://localhost:4000/api/auth/login', {
                method: 'POST', headers: {'Content-Type': 'application/json'},
-               body: JSON.stringify({ identity, password })
+               body: JSON.stringify({ email: identity, password })
            });
            const data = await res.json();
            
@@ -146,10 +155,12 @@ const app = {
                    window.loginEmailContext = data.email;
                } else {
                    localStorage.setItem('token', data.token);
+                   localStorage.setItem('userEmail', identity);
+                   this.userEmail = identity;
                    this.login('user');
                }
            } else {
-               alert(data.error || 'Login failed');
+               alert(data.message || data.error || 'Login failed');
            }
        } catch (err) { alert('Server unavailable'); }
    },
@@ -164,6 +175,8 @@ const app = {
        const data = await res.json();
        if(res.ok) {
            localStorage.setItem('token', data.token);
+           localStorage.setItem('userEmail', window.loginEmailContext);
+           this.userEmail = window.loginEmailContext;
            this.login('user');
        } else {
            alert(data.error);
@@ -269,11 +282,22 @@ const app = {
    async fetchWithAuth(url, options = {}) {
        const token = localStorage.getItem('token');
        if(!token) return { ok: false, error: 'Not logged in' };
+       const requestUrl = url.startsWith('http') ? url : `http://localhost:4000${url}`;
        const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
-       const res = await fetch(url, { ...options, headers });
+       const res = await fetch(requestUrl, { ...options, headers });
        if(res.status === 401) { this.logout(); return { ok: false, error: 'Session expired' }; }
        const data = await res.json().catch(()=>({}));
        return { ok: res.ok, data, error: data.error };
+   },
+
+   async recordTransaction(payload) {
+       if (!payload || !payload.email) return null;
+       const res = await this.fetchWithAuth('/api/transaction/process', {
+           method: 'POST',
+           body: JSON.stringify(payload)
+       });
+       if (!res.ok) console.warn('Failed to record transaction', res.error);
+       return res;
    },
    
    async loadProfile() {
@@ -315,13 +339,13 @@ const app = {
    },
    
    async updateSettings() {
-       const payload = {
-           two_factor_enabled: document.getElementById('prof2fa').checked ? 1 : 0,
-           daily_limit: parseFloat(document.getElementById('profDailyLimit').value),
-           transaction_limit: parseFloat(document.getElementById('profTxnLimit').value),
-           night_restriction: document.getElementById('profNightRes').checked ? 1 : 0,
-           auto_save_beneficiary: document.getElementById('profAutoSave').checked ? 1 : 0,
-       };
+    const payload = {
+        name: document.getElementById('regName').value,
+        email: document.getElementById('regEmail').value,
+        mobile: document.getElementById('regMobile').value,
+        password: document.getElementById('regPassword').value,
+        pin: document.getElementById('regTxnPin').value
+    };
        const res = await this.fetchWithAuth('/api/user/settings', { method: 'POST', body: JSON.stringify(payload) });
        if(res.ok) alert(res.data.message);
        else if(res.error) alert(res.error);
@@ -436,29 +460,140 @@ const app = {
 
    // Core feature: Transaction Flow
    async initiateTransaction() {
-       const amount = document.getElementById('txnAmount').value;
-       const receiver_id = document.getElementById('txnReceiver').value;
-       const payment_type = document.getElementById('txnPaymentType').value;
+  console.log("🚀 Button clicked");
 
-       if(!amount || !receiver_id) return alert('Enter amount and receiver');
-       this.detectReceiverProfile();
-       if(!this.pendingReceiver) return alert('Unable to determine receiver profile.');
+  const amount = document.getElementById('txnAmount').value;
+  const receiver = document.getElementById('txnReceiver').value.trim() || 'Unknown Recipient';
 
-       // Store transaction data for later use
-       this.pendingTransaction = {
-           amount,
-           receiver_id,
-           payment_type,
-           receiver_name: this.pendingReceiver.detectedName,
-           receiver_phone: this.pendingReceiver.detectedPhone,
-           receiver_age: this.pendingReceiver.detectedAge,
-           receiver_type: this.pendingReceiver.detectedType
-       };
+  if (!amount || isNaN(amount) || amount <= 0) {
+    alert('Please enter a valid amount');
+    return;
+  }
 
-       // Show security key modal
-       document.getElementById('security-key-modal').style.display = 'flex';
-       document.getElementById('modalSecurityKey').focus();
-   },
+  this.pendingTransaction = {
+      email: this.userEmail || localStorage.getItem('userEmail'),
+      amount: parseFloat(amount),
+      receiver,
+      transactionId: `TXN${Date.now()}`
+  };
+
+  document.getElementById('txn-form').style.display = 'none';
+  document.getElementById('txn-scan-ui').style.display = 'block';
+  document.getElementById('btn-initiate-txn').disabled = true;
+
+  try {
+    const response = await fetch("http://127.0.0.1:5000/predict", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        amount: parseFloat(amount),
+        transaction_hour: new Date().getHours(),
+        is_new_receiver: 1,
+        device_mismatch: 0,
+        location_mismatch: 0,
+        transaction_count: 3,
+        avg_amount_deviation: 0.2,
+        is_night: 0,
+        failed_attempts: 0
+      })
+    });
+
+    const result = await response.json();   // ✅ MUST come before using result
+    console.log("ML RESULT:", result);
+
+    document.getElementById('txn-scan-ui').style.display = 'none';
+    document.getElementById('txn-verify-ui').style.display = 'block';
+
+    document.getElementById('txn-ai-result').innerText =
+      "Risk: " + result.risk_level + " (" + result.risk_score + "%)";
+
+    const risk = result.risk_level.toUpperCase();
+    this.pendingTransaction.risk_score = result.risk_score || 0;
+    this.pendingTransaction.risk_level = result.risk_level || 'SAFE';
+    this.pendingTransaction.status = (risk.includes('HIGH') || risk.includes('MODERATE')) ? 'PAUSED_OTP' : 'COMPLETED';
+
+    if (risk.includes("HIGH") || risk.includes("MODERATE")) {
+      console.log("⚠️ Calling OTP API");
+
+      await fetch("http://127.0.0.1:5000/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: this.pendingTransaction.email
+        })
+      });
+
+      console.log("✅ OTP API CALLED");
+    } else {
+      const saved = await this.recordTransaction({
+          email: this.pendingTransaction.email,
+          amount: this.pendingTransaction.amount,
+          receiver: this.pendingTransaction.receiver,
+          transactionId: this.pendingTransaction.transactionId,
+          status: 'COMPLETED',
+          risk_score: this.pendingTransaction.risk_score,
+          risk_level: this.pendingTransaction.risk_level
+      });
+      if (saved && saved.ok) {
+          alert('✅ Transaction completed and saved to history.');
+          this.resetTxnForm();
+          this.loadUserHistory();
+          this.navigate('user-transaction-history');
+          return;
+      }
+    }
+
+  } catch (error) {
+    console.error(error);
+    alert("Error connecting to backend");
+  }
+},
+  
+  async finalizeTransaction() {
+  const otp = document.getElementById('txnOtp').value;
+
+  const response = await fetch("http://127.0.0.1:5000/verify-otp", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      otp: otp,
+      email: localStorage.getItem("userEmail")   
+    })
+  });
+
+  const result = await response.json();
+
+  if (result.message === "OTP verified") {
+    const saved = await this.recordTransaction({
+        email: this.pendingTransaction?.email || localStorage.getItem('userEmail'),
+        amount: this.pendingTransaction?.amount,
+        receiver: this.pendingTransaction?.receiver,
+        transactionId: this.pendingTransaction?.transactionId || `TXN${Date.now()}`,
+        status: 'COMPLETED',
+        risk_score: this.pendingTransaction?.risk_score,
+        risk_level: this.pendingTransaction?.risk_level
+    });
+
+    if (saved && saved.ok) {
+        alert("✅ Transaction successful and saved to history.");
+        this.resetTxnForm();
+        this.loadUserHistory();
+        this.navigate('user-transaction-history');
+        return;
+    }
+
+    alert("✅ Transaction Successful");
+    this.navigate('view-user-dashboard');
+  } else {
+    alert("❌ Invalid OTP");
+  }
+},
 
    cancelSecurityKeyModal() {
        document.getElementById('security-key-modal').style.display = 'none';
@@ -567,30 +702,7 @@ const app = {
 
 const amount = parseInt(this.pendingTransaction.amount);
 
-// ✅ 1. Receiver logic (already good)
-const isNewReceiver = this.pendingReceiver.detectedType === "New Beneficiary" ? 1 : 0;
 
-// ✅ 2. Device mismatch (simulate based on session trust)
-const deviceMismatch = Math.random() > 0.8 ? 1 : 0;  // rare case
-
-// ✅ 3. Location mismatch (simulate uncommon scenario)
-const locationMismatch = Math.random() > 0.7 ? 1 : 0;
-
-// ✅ 4. Transaction count (based on realistic user behavior)
-const transactionCount = amount > 50000 ? 5 : 1;
-
-// ✅ 5. Amount deviation (VERY IMPORTANT FEATURE)
-let avgAmountDeviation = 0;
-if (amount > 100000) avgAmountDeviation = 90;
-else if (amount > 50000) avgAmountDeviation = 70;
-else if (amount > 10000) avgAmountDeviation = 40;
-else avgAmountDeviation = 10;
-
-// ✅ 6. Night detection (real logic)
-const isNight = (hour < 6 || hour > 22) ? 1 : 0;
-
-// ✅ 7. Failed attempts (simulate suspicious retries)
-const failedAttempts = (amount > 50000 && isNewReceiver) ? 2 : 0;
 
 // FINAL DATA SENT TO THE BACKEND
 const payload = {
@@ -603,16 +715,37 @@ const payload = {
     receiver_age: this.pendingReceiver.detectedAge
 };
 
-let response;
 try {
-    response = await this.fetchWithAuth('/api/txn/process', {
+    const mlResponse = await fetch('http://127.0.0.1:5000/predict', {
         method: 'POST',
-        body: JSON.stringify(payload)
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            amount: parseInt(this.pendingTransaction.amount),
+            transaction_hour: new Date().getHours(),
+            is_new_receiver: this.pendingReceiver.detectedType === "New Beneficiary" ? 1 : 0,
+            device_mismatch: 0,
+            location_mismatch: 0,
+            transaction_count: 1,
+            avg_amount_deviation: 10,
+            is_night: (new Date().getHours() < 6 || new Date().getHours() > 22) ? 1 : 0,
+            failed_attempts: 0,
+            email: localStorage.getItem("userEmail")  
+        })
     });
+
+    const data = await mlResponse.json();
+
+    let response = {
+        ok: true,
+        data: data
+    };
+
 } catch (err) {
     clearInterval(interval);
     sc.style.display = 'none';
-    alert('Unable to reach backend service. Please start the Node backend and the ML model service.');
+    alert('ML server not running');
     this.resetTxnForm();
     return;
 }
@@ -627,40 +760,31 @@ if (!response || !response.ok) {
     return;
 }
 
-window.currentTxnId = response.data.txnId;
-window.mockRealOtp = response.data.server_mock_otp;
+const risk_score = response.data.risk_score || 0;
+const risk_level = response.data.risk_level || "UNKNOWN";
 
-const risk_score = response.data.risk_score;
-const risk_level = response.data.risk_level;
-
-if (risk_level === 'High' || risk_level === 'HIGH RISK') {
-    document.getElementById('blocked-desc').textContent = `This transaction has been blocked due to high fraud risk (Score: ${risk_score}%).`;
+if (risk_score > 80) {
+    document.getElementById('blocked-desc').textContent =
+        `Blocked due to high risk (${risk_score}%)`;
     this.navigate('user-transaction-blocked');
 }
-else if (response.data.status === 'PAUSED_OTP' || risk_level === 'Moderate' || risk_level === 'MODERATE') {
+else if (risk_score > 50) {
     vf.style.display = 'block';
-    document.getElementById('txn-ai-result').textContent = `Risk Score: ${risk_score}% (${risk_level})`;
+
+    document.getElementById('txn-ai-result').textContent =
+        `Risk Score: ${risk_score}% (${risk_level})`;
+
+    await fetch('http://127.0.0.1:5000/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: this.userEmail || localStorage.getItem('userEmail') })
+    });
 }
-else if (risk_level === 'Safe' || risk_level === 'SAFE') {
+else {
     this.navigate('user-transaction-result');
 }
    },
 
-   async finalizeTransaction() {
-       const otp = document.getElementById('txnOtp').value;
-       const res = await this.fetchWithAuth('/api/txn/confirm-otp', {
-           method: 'POST', body: JSON.stringify({ txnId: window.currentTxnId, entered_otp: otp, real_otp: window.mockRealOtp })
-       });
-
-       if(res.ok) {
-           this.navigate('user-transaction-result');
-           this.pendingTransaction = null;
-           document.getElementById('modalSecurityKey').value = '';
-           this.resetTxnForm();
-       } else {
-           alert(res.error);
-       }
-   },
 
    resetTxnForm() {
        setTimeout(() => {
@@ -673,7 +797,7 @@ else if (risk_level === 'Safe' || risk_level === 'SAFE') {
            document.getElementById('receiverInfoCard').style.display = 'none';
            this.pendingReceiver = null;
        }, 1000);
-   }
+   },
 };
 
 window.app = app; // expose app to inline event handlers
