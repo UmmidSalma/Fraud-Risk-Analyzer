@@ -2,10 +2,10 @@
   "name": "securewith-ai-backend",
   "version": "1.0.0",
   "description": "SecureWith.AI - AI-Powered Fraud Detection Backend",
-  "main": "server.js",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js"
   },
   "keywords": [
     "fraud",
@@ -17,9 +17,14 @@
   "author": "SecureWith.AI",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2",
+    "bcrypt": "^6.0.0",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "body-parser": "^1.20.2"
+    "dotenv": "^17.4.2",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.3",
+    "sqlite3": "^6.0.1",
+    "ua-parser-js": "^2.0.9"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
