@@ -2,9 +2,7 @@ import pickle
 import numpy as np
 import os
 
-model_path = os.path.join(os.path.dirname(__file__), 'model', 'fraud_model.pkl')
-
-with open(model_path, 'rb') as file:
+with open("model/fraud_model.pkl", "rb") as file:
     model = pickle.load(file)
 
 # Fraud Risk Prediction Function (Reusable ML Module)
