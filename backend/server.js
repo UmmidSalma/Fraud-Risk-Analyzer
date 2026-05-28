@@ -1,19 +1,42 @@
 // SecureWith.AI Backend Server
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = 4000;
 const JWT_SECRET = process.env.JWT_SECRET || 'securewith-ai-secret-key';
+const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS || 'mdivate588@gmail.com';
+const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || 'zhgzqklcxowtxtem';
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: EMAIL_ADDRESS,
+    pass: EMAIL_PASSWORD,
+  },
+});
+
+async function sendOtpEmail(to, otp) {
+  const mailOptions = {
+    from: EMAIL_ADDRESS,
+    to,
+    subject: 'SecureWith.AI Registration OTP',
+    text: `Your registration OTP is ${otp}. It expires in 5 minutes.`,
+  };
+
+  return transporter.sendMail(mailOptions);
+}
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, '..')));
 
 // In-memory storage (in production, use a database)
 const users = {};
@@ -39,7 +62,7 @@ function generateTransactionId() {
 // ==================== USER AUTHENTICATION ENDPOINTS ====================
 
 // Register User
-app.post('/api/auth/register', (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   const { name, email, mobile, password, pin, otp, txn_pin, dob, city } = req.body;
   const identity = email ? email.trim() : '';
 
@@ -85,8 +108,6 @@ app.post('/api/auth/register', (req, res) => {
   const otpCode = generateOTP();
   otps[identity] = { otp: otpCode, timestamp: Date.now(), email: identity, mobile };
 
-  console.log('🔥 Registration OTP for', identity, 'is:', otpCode);
-
   users[identity] = {
     email: identity,
     mobile,
@@ -96,7 +117,13 @@ app.post('/api/auth/register', (req, res) => {
     registered: false,
   };
 
-  return res.json({ success: true, message: 'OTP sent to email and SMS', email: identity, mobile });
+  try {
+    await sendOtpEmail(identity, otpCode);
+    return res.json({ success: true, message: 'OTP sent to email. Please check your inbox.', email: identity, mobile });
+  } catch (error) {
+    console.error('OTP email send failed:', error);
+    return res.status(500).json({ success: false, message: 'Unable to send OTP email. Please try again later.' });
+  }
 });
 
 // Verify OTP for Registration
@@ -404,6 +431,10 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
+
 // ==================== ERROR HANDLER ====================
 
 app.use((err, req, res, next) => {
@@ -417,12 +448,26 @@ app.use((err, req, res, next) => {
 
 // ==================== START SERVER ====================
 
-app.listen(PORT, () => {
-  console.log('');
-  console.log('╔════════════════════════════════════════════════╗');
-  console.log('║  SecureWith.AI Backend Server Running         ║');
-  console.log(`║  Server: http://localhost:${PORT}                    ║`);
-  console.log('║  API Docs: http://localhost:4000/api/health   ║');
-  console.log('╚════════════════════════════════════════════════╝');
-  console.log('');
-});
+function startServer(port) {
+  const server = app.listen(port, () => {
+    console.log('');
+    console.log('╔════════════════════════════════════════════════╗');
+    console.log('║  SecureWith.AI Backend Server Running         ║');
+    console.log(`║  Server: http://localhost:${port}                    ║`);
+    console.log(`║  API Docs: http://localhost:${port}/api/health   ║`);
+    console.log('╚════════════════════════════════════════════════╝');
+    console.log('');
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.warn(`Port ${port} is already in use. Trying port ${port + 1}...`);
+      startServer(port + 1);
+    } else {
+      console.error('Server error:', err);
+      process.exit(1);
+    }
+  });
+}
+
+startServer(PORT);
