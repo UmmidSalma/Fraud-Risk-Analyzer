@@ -10,6 +10,7 @@ const app = {
        this.userEmail = localStorage.getItem('userEmail') || '';
        this.pendingTransaction = null;
        this.initOtpCountdowns();
+       this.expectedOtp = null;
        // Start at home page
        this.navigate('home');
    },
@@ -138,9 +139,14 @@ const app = {
                headers: { 'Content-Type': 'application/json' },
                body: JSON.stringify({ email })
            });
-           const data = await response.json();
+           const data = await response.json().catch(() => ({}));
            if (!response.ok) {
                return alert(data.error || 'Unable to resend OTP.');
+           }
+           const otpCode = data.otp || data.server_mock_otp || data.code || null;
+           if (otpCode) {
+               this.expectedOtp = otpCode;
+               if (this.pendingTransaction) this.pendingTransaction.expectedOtp = otpCode;
            }
            alert(data.message || 'OTP resent successfully.');
            this.startOtpCountdown('txn');
@@ -276,14 +282,23 @@ const app = {
        document.getElementById('dashValSecured').textContent = securedTxns;
        
        const histRes = await this.fetchWithAuth('/api/user/history');
+       const devRes = await this.fetchWithAuth('/api/user/devices');
+       const alertsRes = await this.fetchWithAuth('/api/user/alerts');
        let weeklyTotals = [65, 88, 77, 98, 110, 92, 104]; // Default values
        let weekdayLabels = [];
        
+       const transactions = Array.isArray(histRes.data)
+           ? histRes.data
+           : (histRes.data?.transactions || histRes.data?.data || []);
+       const deviceList = Array.isArray(devRes.data) ? devRes.data : [];
+       const alertList = Array.isArray(alertsRes.data) ? alertsRes.data : [];
+       const confidencePercent = this.calculateAccountConfidence(transactions, deviceList, alertList);
+       
        // Populate recent activity
-       if(histRes.ok && histRes.data && histRes.data.length > 0) {
+       if(Array.isArray(transactions) && transactions.length > 0) {
            const cont = document.getElementById('dashRecentAct');
            cont.innerHTML = '';
-           histRes.data.slice(0, 3).forEach(t => {
+           transactions.slice(-3).reverse().forEach(t => {
                const color = t.status === 'COMPLETED' ? 'neon' : 'warn';
                cont.innerHTML += `<div class="list-row"><span class="txt">Transfer to ${t.receiver_id || 'Account'}</span><span class="txt ${color}">-$${parseFloat(t.amount).toFixed(2)}</span></div>`;
            });
@@ -295,7 +310,7 @@ const app = {
            startDate.setHours(0, 0, 0, 0);
            startDate.setDate(startDate.getDate() - 6);
            
-           histRes.data.forEach(t => {
+           transactions.forEach(t => {
                const txDate = new Date(t.timestamp || t.created_at || new Date());
                if(isNaN(txDate)) return;
                txDate.setHours(0, 0, 0, 0);
@@ -338,32 +353,60 @@ const app = {
        // Animate gauge with wheel effect
        const gauge = document.querySelector('.gauge-fill');
        if(gauge) {
-           const totalAmount = weeklyTotals.reduce((sum, v) => sum + v, 0);
-           const percent = Math.min(100, Math.max(35, Math.round((totalAmount / 700) * 100)));
+           const confidence = confidencePercent;
            const radius = 50;
            const circumference = 2 * Math.PI * radius;
            gauge.style.strokeDasharray = `${circumference} ${circumference}`;
-           const offset = circumference - (percent / 100) * circumference;
+           const offset = circumference - (confidence / 100) * circumference;
            setTimeout(() => { 
                gauge.style.strokeDashoffset = offset; 
            }, 100);
            const gaugeText = document.getElementById('gaugeValue');
-           if(gaugeText) gaugeText.textContent = `${percent}%`;
+           if(gaugeText) gaugeText.textContent = `${confidence}%`;
        }
+
    },
    
    async loadUserHistory() {
        const res = await this.fetchWithAuth('/api/user/history');
-       if(res.ok && res.data) {
-           const tbody = document.getElementById('userHistoryTbody');
-           tbody.innerHTML = '';
-           res.data.forEach(t => {
+       const tbody = document.getElementById('userHistoryTbody');
+       if (!tbody) return;
+       tbody.innerHTML = '';
+       const historyItems = Array.isArray(res.data)
+           ? res.data
+           : (res.data?.transactions || res.data?.data || []);
+       if (res.ok && historyItems.length > 0) {
+           historyItems.forEach(t => {
                let s_class = 'neon';
-               if(t.status === 'BLOCKED') s_class = 'danger-c';
-               if(t.status === 'PAUSED_OTP') s_class = 'warn';
+               if (t.status === 'BLOCKED') s_class = 'danger-c';
+               if (t.status === 'PAUSED_OTP') s_class = 'warn';
                tbody.innerHTML += `<tr><td>TXN-${t.transaction_id}</td><td>${new Date(t.timestamp).toLocaleDateString()}</td><td>${t.receiver_id}</td><td class="warn">-$${t.amount}</td><td class="${s_class}">${t.status}</td></tr>`;
            });
+           return;
        }
+       const defaultMessage = res.ok ? 'No transactions found yet.' : 'Unable to load transaction history. Please try again later.';
+       tbody.innerHTML = `<tr><td colspan="5" class="muted">${defaultMessage}</td></tr>`;
+   },
+   
+   calculateAccountConfidence(transactions, devices = [], alerts = []) {
+       const txItems = Array.isArray(transactions) ? transactions : (transactions?.transactions || transactions?.data || []);
+       const validTx = Array.isArray(txItems) ? txItems : [];
+       const txCount = validTx.length;
+       const avgRisk = txCount ? validTx.reduce((acc, tx) => acc + (Number(tx.risk_score) || 0), 0) / txCount : 0;
+       const riskyTxCount = validTx.filter(tx => {
+           const level = (tx.risk_level || '').toString().toLowerCase();
+           return level === 'high' || level === 'moderate' || tx.status === 'BLOCKED' || tx.status === 'PAUSED_OTP';
+       }).length;
+       const untrustedDevices = Array.isArray(devices) ? devices.filter(d => d.trusted_flag !== 1).length : 0;
+       const alertCount = Array.isArray(alerts) ? alerts.length : 0;
+
+       let confidence = 100;
+       confidence -= Math.min(40, avgRisk * 0.4);
+       confidence -= Math.min(25, txCount ? (riskyTxCount / txCount) * 25 : 0);
+       confidence -= Math.min(20, untrustedDevices * 8);
+       confidence -= Math.min(15, alertCount * 5);
+       confidence = Math.round(Math.max(12, Math.min(100, confidence)));
+       return confidence;
    },
    
    async loadUserAlerts() {
@@ -387,8 +430,11 @@ const app = {
        const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
        const res = await fetch(requestUrl, { ...options, headers });
        if(res.status === 401) { this.logout(); return { ok: false, error: 'Session expired' }; }
-       const data = await res.json().catch(()=>({}));
-       return { ok: res.ok, data, error: data.error };
+       const body = await res.json().catch(() => ({}));
+       const payload = (body && typeof body === 'object')
+           ? (body.data || body.transactions || body)
+           : body;
+       return { ok: res.ok, data: payload, error: body.error || body.message };
    },
 
    async recordTransaction(payload) {
@@ -663,6 +709,7 @@ const app = {
             document.getElementById('txn-ai-result').innerText =
                 `Risk: ${this.pendingTransaction.risk_level} (${this.pendingTransaction.risk_score}%)`;
             document.getElementById('btn-initiate-txn').disabled = false;
+            let otpCode = null;
             try {
                 const otpResponse = await fetch('http://127.0.0.1:5000/send-otp', {
                     method: 'POST',
@@ -670,11 +717,19 @@ const app = {
                     body: JSON.stringify({ email: this.pendingTransaction.email })
                 });
                 if (otpResponse.ok) {
+                    const otpData = await otpResponse.json().catch(() => ({}));
+                    otpCode = otpData.otp || otpData.server_mock_otp || otpData.code || null;
                     this.startOtpCountdown('txn');
                 }
             } catch (otpErr) {
                 console.warn('OTP service unavailable:', otpErr);
             }
+            if (!otpCode) {
+                otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+                console.log('Generated local OTP for transaction verification:', otpCode);
+            }
+            this.expectedOtp = otpCode;
+            this.pendingTransaction.expectedOtp = otpCode;
             return;
         }
 
@@ -706,21 +761,51 @@ const app = {
 },
   
   async finalizeTransaction() {
-  const otp = document.getElementById('txnOtp').value;
+  const otpInput = document.getElementById('txnOtp');
+  const otp = otpInput ? otpInput.value.trim() : '';
   
-  if(!otp) return alert('Please enter OTP');
+  if (!otp) return alert('Please enter OTP');
+  if (!this.pendingTransaction) return alert('Transaction session expired.');
 
-  // For now, skip OTP verification to ML server (not running)
-  // Just proceed with transaction
+  const expected = (this.pendingTransaction.expectedOtp || this.expectedOtp || '').toString().trim();
+  if (!expected) {
+      return alert('OTP verification is unavailable. Please retry the transaction.');
+  }
+
+  if (otp !== expected) {
+      if (this.pendingTransaction) {
+          this.pendingTransaction.status = 'BLOCKED';
+      }
+      const blocked = await this.recordTransaction({
+          email: this.pendingTransaction.email,
+          amount: this.pendingTransaction.amount,
+          receiver: this.pendingTransaction.receiver,
+          transactionId: this.pendingTransaction.transactionId || `TXN${Date.now()}`,
+          pin: this.pendingTransaction.pin,
+          status: 'BLOCKED',
+          risk_score: this.pendingTransaction.risk_score || 95,
+          risk_level: 'High'
+      });
+      if (blocked && blocked.ok) {
+          alert('❌ Wrong OTP entered. Transaction has been blocked.');
+          this.resetTxnForm();
+          this.loadUserHistory();
+          this.loadUserDashboard();
+          this.navigate('user-transaction-history');
+          return;
+      }
+      return alert('Wrong OTP entered and transaction could not be blocked. Please try again later.');
+  }
+
   const saved = await this.recordTransaction({
-      email: this.pendingTransaction?.email || localStorage.getItem('userEmail'),
-      amount: this.pendingTransaction?.amount,
-      receiver: this.pendingTransaction?.receiver,
-      transactionId: this.pendingTransaction?.transactionId || `TXN${Date.now()}`,
-      pin: this.pendingTransaction?.pin,
+      email: this.pendingTransaction.email,
+      amount: this.pendingTransaction.amount,
+      receiver: this.pendingTransaction.receiver,
+      transactionId: this.pendingTransaction.transactionId || `TXN${Date.now()}`,
+      pin: this.pendingTransaction.pin,
       status: 'COMPLETED',
-      risk_score: this.pendingTransaction?.risk_score || 15,
-      risk_level: this.pendingTransaction?.risk_level || 'LOW'
+      risk_score: this.pendingTransaction.risk_score || 15,
+      risk_level: this.pendingTransaction.risk_level || 'LOW'
   });
 
   if (saved && saved.ok) {
