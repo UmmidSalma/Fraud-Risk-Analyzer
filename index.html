@@ -215,8 +215,12 @@
 
         <div class="auth-form" id="reg-otp-ui" style="display:none;">
           <h3 class="auth-title blue">VERIFICATION REQUIRED</h3>
-          <p class="mb-1" style="font-size: 13px; color: var(--muted);">We've sent a 6-digit OTP to your email and mobile. Expires in 5:00.</p>
+          <p class="mb-1" style="font-size: 13px; color: var(--muted);">We've sent a 6-digit OTP to your email and mobile. Resend available in <span class="otp-timer-badge active" id="regOtpTimer">00:30</span>.</p>
           <input type="text" id="regOtp" placeholder="6-Digit OTP" class="neo-input" />
+          <div class="otp-resend-row">
+            <button class="scan-btn mini" id="regResendOtpBtn" onclick="app.registerSendOtp()" disabled>Resend OTP</button>
+            <span id="regResendHint" class="muted" style="font-size:12px;">Wait until the timer reaches zero.</span>
+          </div>
           <button class="process-btn" onclick="app.registerSubmit()">ESTABLISH IDENTITY</button>
         </div>
       </div>
@@ -327,7 +331,21 @@
             </div>
           </div>
 
-          <button class="process-btn" id="btn-initiate-txn" onclick="app.initiateTransaction()">INITIATE NEURAL SCAN</button>
+          <button class="process-btn" id="btn-initiate-txn" onclick="app.prepareTransactionPin()">NEXT: ENTER PIN</button>
+        </div>
+
+        <div class="auth-form" id="txn-pin-step" style="display:none;">
+           <p class="mb-1" style="font-size: 13px; color: var(--muted);">Confirm your transfer details and enter your 4-digit transaction PIN to proceed.</p>
+           <div class="receiver-info-card" style="display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px;">
+               <div class="receiver-chip"><strong>Receiver:</strong> <span id="txnSummaryReceiver">-</span></div>
+               <div class="receiver-chip"><strong>Amount:</strong> <span id="txnSummaryAmount">-</span></div>
+               <div class="receiver-chip"><strong>Payment:</strong> <span id="txnSummaryPaymentType">-</span></div>
+           </div>
+           <input type="password" id="txnPinConfirm" placeholder="Transaction PIN" class="neo-input" maxlength="4" />
+           <div style="display:flex; gap: 12px; margin-top: 18px;">
+             <button class="scan-btn mini" onclick="app.backToTxnDetails()">EDIT DETAILS</button>
+             <button class="process-btn" onclick="app.initiateTransaction()">PROCEED</button>
+           </div>
         </div>
         
         <div id="txn-scan-ui" style="display:none; text-align:center;">
@@ -340,7 +358,12 @@
         <div id="txn-verify-ui" style="display:none;">
            <h3 class="auth-title warn" id="txn-verify-title">SECURITY CLEARANCE PAUSED</h3>
            <p class="mb-1" id="txn-ai-result">[AI Engine]</p>
+           <p class="mb-1" style="font-size: 13px; color: var(--muted);">OTP sent for verification. Resend available in <span class="otp-timer-badge active" id="txnOtpTimer">00:30</span>.</p>
            <input type="text" id="txnOtp" placeholder="Enter System OTP / PIN" class="neo-input" />
+           <div class="otp-resend-row">
+             <button class="scan-btn mini" id="txnResendOtpBtn" onclick="app.resendTransactionOtp()" disabled>Resend OTP</button>
+             <span id="txnResendHint" class="muted" style="font-size:12px;">Waiting window for protection.</span>
+           </div>
            <button class="process-btn" onclick="app.finalizeTransaction()">CONFIRM TRANSFER</button>
         </div>
       </div>

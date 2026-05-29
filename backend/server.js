@@ -305,8 +305,8 @@ app.post('/api/transaction/process', (req, res) => {
     return res.status(400).json({ success: false, message: 'User not found' });
   }
 
-  if (pin && users[email].pin && users[email].pin !== pin) {
-    return res.status(400).json({ success: false, message: 'Invalid PIN' });
+  if (users[email].pin && users[email].pin !== pin) {
+    return res.status(400).json({ success: false, message: 'Invalid Transaction PIN' });
   }
 
   const transaction = {

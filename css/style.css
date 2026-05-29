@@ -321,6 +321,19 @@ body.light-theme,
   100% { color: #ffffff; }
 }
 
+/* ---- WHEEL GAUGE ANIMATION ---- */
+@keyframes wheelSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.gauge-svg {
+  animation: wheelSpin 8s linear infinite;
+}
+
+.gauge-bg {
+  animation: wheelSpin 8s linear infinite reverse;
+}
 
 /* ---- BACKGROUND GRAPHIC ---- */
 .bg-lock-graphic {
@@ -456,6 +469,48 @@ body {
 }
 .scan-btn:hover { background: rgba(0,191,255,.1); }
 .scan-btn.mini { padding: 4px 10px; font-size: 11px; width: auto; }
+
+.otp-resend-row {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0.8rem 0 0.4rem;
+}
+.otp-resend-row .scan-btn {
+  width: auto;
+  min-width: 158px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #dbeafe;
+  background: rgba(15, 23, 42, 0.95);
+}
+.otp-resend-row .scan-btn:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+.otp-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 74px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #bfdbfe;
+  font-size: 13px;
+  letter-spacing: 0.8px;
+  transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+.otp-timer-badge.active { animation: timerPulse 1.4s ease-in-out infinite; }
+.otp-timer-badge.finished { background: rgba(16, 185, 129, 0.16); border-color: rgba(16, 185, 129, 0.45); color: #a7f3d0; }
+#regResendOtpBtn:disabled, #txnResendOtpBtn:disabled { opacity: 0.62; cursor: not-allowed; }
+#regResendOtpBtn:not(:disabled), #txnResendOtpBtn:not(:disabled) { opacity: 1; transform: translateY(-1px); }
+@keyframes timerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
 
 .auth-links { display: flex; justify-content: space-between; font-size: 12px; margin-top: 10px; }
 .auth-links span { cursor: pointer; color: var(--muted); transition: .2s; }

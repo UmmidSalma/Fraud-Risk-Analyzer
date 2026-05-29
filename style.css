@@ -282,6 +282,30 @@ body {
 .scan-btn:hover { background: rgba(0,191,255,.1); }
 .scan-btn.mini { padding: 4px 10px; font-size: 11px; width: auto; }
 
+.otp-resend-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.otp-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(168,85,247,0.2);
+  color: #fff;
+  font-size: 13px;
+  letter-spacing: 1px;
+  transition: transform .2s ease, background .2s ease;
+}
+.otp-timer-badge.active { animation: timerPulse 1.2s ease-in-out infinite; }
+.otp-timer-badge.finished { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.35); color: #b7f5d6; }
+#regResendOtpBtn:disabled, #txnResendOtpBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+#regResendOtpBtn:not(:disabled), #txnResendOtpBtn:not(:disabled) { opacity: 1; transform: translateY(-1px); }
+@keyframes timerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
 .auth-links { display: flex; justify-content: space-between; font-size: 12px; margin-top: 10px; }
 .auth-links span { cursor: pointer; color: var(--muted); transition: .2s; }
 .auth-links span:hover { color: var(--neon); }
