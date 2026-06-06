@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SecureWith.AI — AI Fraud Detector | SPA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">SECURE<span>WITH.AI</span></div>
+      <nav class="nav" id="mainNav">
+        <!-- Dynamically updated based on role -->
+      </nav>
+    </div>
+    <div class="header-right">
+      <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span class="status-text">SYSTEM OPTIMAL</span>
+      </div>      <button class="theme-switcher" id="themeToggleBtn" title="Toggle light/dark theme" onclick="app.toggleTheme()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a.75.75 0 0 1 .75.75V5a.75.75 0 0 1-1.5 0V3.25A.75.75 0 0 1 12 2.5Zm5.03 2.97a.75.75 0 0 1 1.06 0l1.06 1.06a.75.75 0 0 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.06ZM12 7.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Zm-7.53-1.53a.75.75 0 0 1 1.06 0l1.06 1.06a.75.75 0 1 1-1.06 1.06L4.47 7.03a.75.75 0 0 1 0-1.06ZM5 12a.75.75 0 0 1 .75-.75H8a.75.75 0 0 1 0 1.5H5.75A.75.75 0 0 1 5 12Zm11.25-.75H19a.75.75 0 0 1 0 1.5h-2.25A.75.75 0 0 1 16 11.25Zm-4.97 7.78a.75.75 0 0 1 1.06 0l1.06 1.06a.75.75 0 0 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.06ZM12 18.5a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-1.75A.75.75 0 0 1 12 18.5Z"/></svg>
+        <span id="themeToggleLabel">LIGHT</span>
+      </button>      <div class="icon-btn" title="Logout" onclick="app.logout()">
+         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="container app-container" id="app-root">
+
+    <!-- ==================== HOME PAGE ==================== -->
+    <section id="view-home" class="page-view active">
+      <!-- HERO VIDEO SECTION -->
+      <div class="hero-container">
+        <div class="video-wrapper">
+          <div class="hero-graph-block">
+            <div class="hero-graph-header">
+              <div>
+                <span class="graph-tag">Live transaction flow</span>
+                <h3>Payments accelerating upward</h3>
+              </div>
+            </div>
+            <div class="hero-graph-display">
+              <svg viewBox="0 0 700 300" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="homeAreaFade" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(217,70,239,0.35)" />
+                    <stop offset="100%" stop-color="rgba(26,15,48,0.04)" />
+                  </linearGradient>
+                </defs>
+                <path class="home-area" d="M10,260 L110,230 L210,210 L310,170 L410,140 L510,120 L610,70 L690,50 L700,50 L700,300 L0,300 Z" />
+                <path class="home-line" d="M10,260 L110,230 L210,210 L310,170 L410,140 L510,120 L610,70 L690,50" />
+                <circle class="home-point" cx="10" cy="260" />
+                <circle class="home-point" cx="110" cy="230" />
+                <circle class="home-point" cx="210" cy="210" />
+                <circle class="home-point" cx="310" cy="170" />
+                <circle class="home-point" cx="410" cy="140" />
+                <circle class="home-point" cx="510" cy="120" />
+                <circle class="home-point" cx="610" cy="70" />
+                <circle class="home-point" cx="690" cy="50" />
+              </svg>
+              <div class="hero-graph-axis">
+                <span>Mon</span>
+                <span>Tue</span>
+                <span>Wed</span>
+                <span>Thu</span>
+                <span>Fri</span>
+                <span>Sat</span>
+                <span>Sun</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-content">
+          <h1 class="hero-title" >SECUREWITH <span class="glow-text">.AI</span></h1>
+          <p class="hero-subtitle">AI-Powered Real-Time Digital Payment Fraud & Risk Analyzer</p>
+          <div class="hero-buttons">
+            <button class="btn-primary" onclick="app.navigate('user-login')">LOGIN</button>
+            <button class="btn-secondary" onclick="app.navigate('user-register')">REGISTER</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEATURES SECTION -->
+      <div class="features-section">
+        <h2 class="section-heading">ADVANCED FEATURES</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Real-Time Risk Scoring</h3>
+            <p>Assign AI-based risk scores from 0–100 to every transaction instantly.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🕵️‍♂️</div>
+            <h3>Suspicious Activity Detection</h3>
+            <p>Spot device mismatch, location anomalies, and abnormal spending patterns.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🚫</div>
+            <h3>Auto-Block High-Risk Flows</h3>
+            <p>Auto-block risky transactions and notify via Email, SMS, and in-app alerts.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔁</div>
+            <h3>Continuous Learning</h3>
+            <p>Update behavior profiles continuously to improve detection accuracy over time.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>Admin Oversight Dashboard</h3>
+            <p>Monitor fraud, block accounts, and retrain the AI model from a unified console.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- INFO SECTION -->
+      <div class="info-section">
+        <div class="info-content">
+          <h2>Why SecureWith.AI?</h2>
+          <div class="info-grid-2">
+            <div class="info-item">
+              <h4>🎯 Precision Detection</h4>
+              <p>Our neural engine combines XGBoost, LSTM, Isolation Forests, and Autoencoders to achieve unparalleled fraud detection accuracy</p>
+            </div>
+            <div class="info-item">
+              <h4>🚀 Ultra-Low Latency</h4>
+              <p>Process transactions in just 12 milliseconds with our optimized AI infrastructure</p>
+            </div>
+            <div class="info-item">
+              <h4>📱 Device Fingerprinting</h4>
+              <p>Silent behavioral analysis and geolocation tracking to identify suspicious patterns</p>
+            </div>
+            <div class="info-item">
+              <h4>💼 Enterprise Ready</h4>
+              <p>Built for financial institutions with comprehensive audit trails and compliance reporting</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA SECTION -->
+      <div class="cta-section">
+        <div class="cta-content">
+          <h2>Ready to Secure Your Transactions?</h2>
+          <p>Join thousands of users protecting their digital payments with our advanced AI technology</p>
+          <button class="btn-large" onclick="app.navigate('user-register')">GET STARTED NOW</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== USER VIEWS ==================== -->
+    
+    <!-- 1. USER LOGIN -->
+    <section id="view-user-login" class="page-view active">
+      <div class="auth-card">
+        <h2 class="auth-title">USER INITIATION</h2>
+        <div class="auth-form" id="login-primary-form">
+          <input type="text" id="loginIdentity" placeholder="Email / Mobile" value="user@secure.ai" class="neo-input" />
+          <input type="password" id="loginPassword" placeholder="Passcode" value="12345678A@" class="neo-input" />
+          <button class="process-btn" onclick="app.loginSubmit()">AUTHENTICATE</button>
+          <div class="auth-links">
+            <span onclick="app.navigate('user-register')">New Identity? Register</span>
+            <span onclick="app.navigate('admin-login')" class="warn">Admin Portal</span>
+          </div>
+        </div>
+        
+        <div class="auth-form" id="login-otp-ui" style="display:none;">
+          <h3 class="auth-title warn">UNRECOGNIZED DEVICE / LOCATION</h3>
+          <p class="mb-1" style="font-size: 13px; color: var(--muted);">We've sent a 6-digit OTP to your registered channels. Enter it below to unseal access.</p>
+          <input type="text" id="loginOtp" placeholder="6-Digit OTP" class="neo-input" />
+          <label class="auth-links" style="display: flex; gap: 8px; justify-content: flex-start; align-items: center; margin-bottom: 20px;">
+             <input type="checkbox" id="trustDeviceCb" style="accent-color: var(--neon)" checked> Trust this device
+          </label>
+          <button class="process-btn" onclick="app.loginVerifyOtp()">VERIFY & PROCEED</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. USER REGISTER -->
+    <section id="view-user-register" class="page-view">
+      <div class="auth-card">
+        <h2 class="auth-title">NEW IDENTITY REGISTRATION</h2>
+        <div class="auth-form" id="reg-primary-form">
+          <input type="text" id="regName" placeholder="Full Name" class="neo-input" />
+          <input type="email" id="regEmail" placeholder="Email Address" class="neo-input" oninput="app.validateEmail(this)" />
+          <span id="emailError" class="danger-c" style="display:none; font-size:12px;">Invalid Email Format</span>
+          <input type="text" id="regMobile" placeholder="Mobile Number (10 digits)" class="neo-input" maxlength="10" />
+          
+          <div style="display: flex; gap: 10px;">
+             <input type="date" id="regDob" class="neo-input" style="flex:1" />
+             <input type="text" id="regCity" placeholder="City" class="neo-input" style="flex:1" />
+          </div>
+          
+          <input type="password" id="regPassword" placeholder="Passcode" class="neo-input" oninput="app.checkPasswordStrength(this.value)" />
+          <div style="height: 4px; background: #222; margin-bottom: 5px; border-radius: 2px; overflow: hidden;">
+             <div id="pwdStrengthBar" style="height: 100%; width: 0%; transition: width 0.3s; background: var(--danger)"></div>
+          </div>
+          <span id="pwdStrengthText" class="muted" style="font-size:11px; display:block; margin-bottom:15px;">Min 8 chars, 1 uppercase, 1 number, 1 special</span>
+          
+          <input type="password" id="regConfirmPassword" placeholder="Confirm Passcode" class="neo-input" />
+          <input type="password" id="regTxnPin" placeholder="Transaction PIN (4 digits)" class="neo-input" maxlength="4" />
+          <button class="process-btn" onclick="app.registerSendOtp()">ACQUIRE OTP</button>
+          <div class="auth-links">
+            <span onclick="app.navigate('user-login')">Existing Identity? Login</span>
+          </div>
+        </div>
+
+        <div class="auth-form" id="reg-otp-ui" style="display:none;">
+          <h3 class="auth-title blue">VERIFICATION REQUIRED</h3>
+          <p class="mb-1" style="font-size: 13px; color: var(--muted);">We've sent a 6-digit OTP to your email and mobile. Resend available in <span class="otp-timer-badge active" id="regOtpTimer">01:00</span>.</p>
+          <input type="text" id="regOtp" placeholder="6-Digit OTP" class="neo-input" />
+          <div class="otp-resend-row">
+            <button class="scan-btn mini" id="regResendOtpBtn" onclick="app.registerSendOtp()" disabled>Resend OTP</button>
+            <span id="regResendHint" class="muted" style="font-size:12px;">Wait until the timer reaches zero.</span>
+          </div>
+          <button class="process-btn" onclick="app.registerSubmit()">ESTABLISH IDENTITY</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. USER DASHBOARD -->
+    <section id="view-user-dashboard" class="page-view">
+      <div class="header-row">
+        <h2>CITIZEN DASHBOARD</h2>
+        <button class="process-btn mini" onclick="app.navigate('user-transaction')">NEW TRANSFER</button>
+      </div>
+      <div class="grid-4 mb-2">
+         <div class="card metric-card">
+             <div class="metric-label">Available Balance</div>
+             <div class="metric-value blue" id="dashValBalance">$12,450.00</div>
+         </div>
+         <div class="card metric-card">
+             <div class="metric-label">Last Transfer</div>
+             <div class="metric-value" id="dashValLast">$450.00</div>
+         </div>
+         <div class="card metric-card">
+             <div class="metric-label">Secured Transactions</div>
+             <div class="metric-value neon" id="dashValSecured">128</div>
+         </div>
+         <div class="card metric-card">
+             <div class="metric-label">Neural Shield</div>
+             <div class="metric-value neon">ACTIVE</div>
+         </div>
+      </div>
+
+      <div class="grid-main mb-2 dashboard-visuals">
+         <div class="card chart-card">
+             <div class="section-label">Weekly Transfer Volume</div>
+             <div class="chart-label-row">
+               <span>Transfers (USD)</span>
+               <span class="muted">Last 7 days</span>
+             </div>
+             <div class="chart-bar-grid" id="volumeBars">
+               <div class="bar-column"><div class="bar-fill" data-value="65"><span>65</span></div><small>Mon</small></div>
+               <div class="bar-column"><div class="bar-fill" data-value="88"><span>88</span></div><small>Tue</small></div>
+               <div class="bar-column"><div class="bar-fill" data-value="77"><span>77</span></div><small>Wed</small></div>
+               <div class="bar-column"><div class="bar-fill" data-value="98"><span>98</span></div><small>Thu</small></div>
+               <div class="bar-column"><div class="bar-fill" data-value="110"><span>110</span></div><small>Fri</small></div>
+               <div class="bar-column"><div class="bar-fill" data-value="92"><span>92</span></div><small>Sat</small></div>
+               <div class="bar-column"><div class="bar-fill" data-value="104"><span>104</span></div><small>Sun</small></div>
+             </div>
+             <div class="chart-meta">
+               <span>Peak activity on Friday</span>
+               <span class="neon">+18% week-over-week</span>
+             </div>
+         </div>
+         <div class="card chart-card gauge-card-wrapper">
+             <div class="section-label">AI Risk Confidence</div>
+             <div class="chart-label-row">
+               <span>Confidence Score</span>
+               <span class="muted">Live detection health</span>
+             </div>
+             <div class="gauge-ring">
+               <svg viewBox="0 0 120 120" class="gauge-svg">
+                 <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
+                 <circle class="gauge-fill" cx="60" cy="60" r="50"></circle>
+               </svg>
+               <div class="gauge-value"><span id="gaugeValue">92%</span><small>secure</small></div>
+             </div>
+             <div class="chart-meta">
+               <span>Transaction safety rating</span>
+               <span class="neon">Stable</span>
+             </div>
+         </div>
+      </div>
+
+      <div class="card">
+         <h3 class="section-label">Recent Activity <span class="action-text" onclick="app.navigate('user-transaction-history')">View All</span></h3>
+         <div class="list-table" id="dashRecentAct">
+            <!-- Dynamically populated -->
+         </div>
+      </div>
+    </section>
+
+    <!-- 4. MAKE TRANSACTION -->
+    <section id="view-user-transaction" class="page-view">
+      <div class="auth-card wide">
+        <h2 class="auth-title">SECURE TRANSFER INITIATION</h2>
+        <p class="auth-sub">System verifies telemetry in background.</p>
+        <div class="auth-form" id="txn-form">
+          <input type="text" id="txnReceiver" placeholder="Receiver name or phone" class="neo-input" oninput="app.detectReceiverProfile()" />
+          <div class="receiver-info-card" id="receiverInfoCard" style="display:none;">
+            <div class="receiver-chip"><strong>Name:</strong> <span id="detectedReceiverName">-</span></div>
+            <div class="receiver-chip"><strong>Phone:</strong> <span id="detectedReceiverPhone">-</span></div>
+            <div class="receiver-chip"><strong>Beneficiary Type:</strong> <span id="detectedReceiverType">-</span></div>
+            <div class="receiver-chip"><strong>Risk Age:</strong> <span id="detectedReceiverAge">-</span></div>
+          </div>
+          <input type="number" id="txnAmount" placeholder="Amount (USD)" class="neo-input" />
+          
+          <select id="txnPaymentType" class="neo-input">
+             <option value="UPI">UPI</option>
+             <option value="Bank Transfer">Bank Transfer</option>
+             <option value="Wallet">Wallet</option>
+          </select>
+
+          <div class="hidden-telemetry">
+            <small>Background Telemetry (Silent Collection):</small>
+            <div class="tel-grid">
+               <span id="telDeviceId">Device ID: <span class="neon">Generating...</span></span>
+               <span id="telVelocity">Velocity: <span class="neon">Tracking...</span></span>
+               <span id="telLocation" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Location: <span class="neon">Capturing...</span></span>
+               <span id="telTime">Time: <span class="neon">Current</span></span>
+            </div>
+          </div>
+
+          <button class="process-btn" id="btn-initiate-txn" onclick="app.prepareTransactionPin()">NEXT: ENTER PIN</button>
+        </div>
+
+        <div class="auth-form" id="txn-pin-step" style="display:none;">
+           <p class="mb-1" style="font-size: 13px; color: var(--muted);">Confirm your transfer details and enter your 4-digit transaction PIN to proceed.</p>
+           <div class="receiver-info-card" style="display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px;">
+               <div class="receiver-chip"><strong>Receiver:</strong> <span id="txnSummaryReceiver">-</span></div>
+               <div class="receiver-chip"><strong>Amount:</strong> <span id="txnSummaryAmount">-</span></div>
+               <div class="receiver-chip"><strong>Payment:</strong> <span id="txnSummaryPaymentType">-</span></div>
+           </div>
+           <input type="password" id="txnPinConfirm" placeholder="Transaction PIN" class="neo-input" maxlength="4" />
+           <div style="display:flex; gap: 12px; margin-top: 18px;">
+             <button class="scan-btn mini" onclick="app.backToTxnDetails()">EDIT DETAILS</button>
+             <button class="process-btn" onclick="app.initiateTransaction()">PROCEED</button>
+           </div>
+        </div>
+        
+        <div id="txn-scan-ui" style="display:none; text-align:center;">
+           <div class="scan-loader">
+              <div class="scanline-ring"></div>
+           </div>
+           <p class="neon mt-1">AI Risk Engine Analyzing <span id="dyn-risk-status">...</span></p>
+        </div>
+        
+        <div id="txn-verify-ui" style="display:none;">
+           <h3 class="auth-title warn" id="txn-verify-title">SECURITY CLEARANCE PAUSED</h3>
+           <p class="mb-1" id="txn-ai-result">[AI Engine]</p>
+           <p class="mb-1" style="font-size: 13px; color: var(--muted);">OTP sent for verification. Resend available in <span class="otp-timer-badge active" id="txnOtpTimer">01:00</span>.</p>
+           <input type="text" id="txnOtp" placeholder="Enter System OTP / PIN" class="neo-input" />
+           <div class="otp-resend-row">
+             <button class="scan-btn mini" id="txnResendOtpBtn" onclick="app.resendTransactionOtp()" disabled>Resend OTP</button>
+             <span id="txnResendHint" class="muted" style="font-size:12px;">Waiting window for protection.</span>
+           </div>
+           <button class="process-btn" onclick="app.finalizeTransaction()">CONFIRM TRANSFER</button>
+        </div>
+      </div>
+
+      <!-- SECURITY KEY MODAL -->
+      <div id="security-key-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+          <h3 class="auth-title">VERIFY SECURITY KEY</h3>
+          <p class="muted mb-1" style="font-size: 14px;">Enter your 4-digit or longer Transaction Security Key to proceed.</p>
+          <input type="password" id="modalSecurityKey" placeholder="Transaction Security Key" class="neo-input" />
+          <div style="display: flex; gap: 12px; margin-top: 24px;">
+            <button class="scan-btn" onclick="app.cancelSecurityKeyModal()">CANCEL</button>
+            <button class="process-btn" style="flex: 1;" onclick="app.verifySecurityKey()">VERIFY & PROCEED</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. TRANSACTION RESULT -->
+    <section id="view-user-transaction-result" class="page-view">
+       <div class="auth-card" style="text-align: center;">
+          <h2 class="auth-title neon" id="res-title">TRANSFER SUCCESSFUL</h2>
+          <div class="neon mt-1 mb-2" style="font-size: 40px; font-family: 'Share Tech Mono';">✅</div>
+          <p class="mb-1" id="res-desc">Funds have securely reached the destination.</p>
+          <button class="scan-btn" onclick="app.navigate('user-dashboard')">RETURN TO DASHBOARD</button>
+       </div>
+    </section>
+
+    <!-- 5.5. TRANSACTION BLOCKED -->
+    <section id="view-user-transaction-blocked" class="page-view">
+       <div class="auth-card" style="text-align: center;">
+          <h2 class="auth-title danger" id="blocked-title">TRANSACTION BLOCKED</h2>
+          <div class="danger mt-1 mb-2" style="font-size: 40px; font-family: 'Share Tech Mono';">🚫</div>
+          <p class="mb-1" id="blocked-desc">This transaction has been blocked by our AI fraud detection system for security reasons.</p>
+          <button class="scan-btn" onclick="app.navigate('user-dashboard')">RETURN TO DASHBOARD</button>
+       </div>
+    </section>
+
+    <!-- 6. TRANSACTION HISTORY -->
+    <section id="view-user-transaction-history" class="page-view">
+       <h2 class="mb-2">TRANSACTION VAULT</h2>
+       <div class="card table-card">
+         <table class="neo-table">
+            <thead>
+               <tr><th>ID</th><th>DATE</th><th>TARGET</th><th>AMOUNT</th><th>STATUS</th></tr>
+            </thead>
+            <tbody id="userHistoryTbody">
+               <!-- Dynamically populated -->
+            </tbody>
+         </table>
+       </div>
+    </section>
+
+    <!-- 7. PROFILE MANAGEMENT -->
+    <section id="view-user-profile" class="page-view">
+       <h2 class="mb-2">IDENTITY METRICS</h2>
+       <div class="grid-main">
+          
+          <div class="card">
+             <h3 class="section-label">Core Details</h3>
+             <input type="text" id="profName" class="neo-input mb-1" placeholder="Name" disabled/>
+             <input type="email" id="profEmail" class="neo-input mb-1" placeholder="Email" disabled/>
+             <input type="text" id="profMobile" class="neo-input mb-1" placeholder="Mobile" disabled/>
+             <div style="display:flex; gap:10px;">
+                <input type="text" id="profCity" class="neo-input mb-1" placeholder="City" style="flex:1" disabled/>
+                <input type="date" id="profDob" class="neo-input mb-1" style="flex:1" disabled/>
+             </div>
+             <p class="muted" style="font-size:11px;">Core details are immutable post-registration per KYC norms.</p>
+          </div>
+
+          <div class="card">
+             <h3 class="section-label">Security Settings</h3>
+             <div style="display: flex; gap: 10px;" class="mb-1">
+                 <input type="password" id="profOldPwd" class="neo-input" placeholder="Current Pwd"/>
+                 <input type="password" id="profNewPwd" class="neo-input" placeholder="New Pwd"/>
+                 <button class="process-btn mini" onclick="app.updatePassword()">CHANGE</button>
+             </div>
+             <div style="display: flex; justify-content: space-between; align-items: center;" class="mb-1 list-row">
+                 <span class="txt">Two-Factor Authentication (2FA)</span>
+                 <input type="checkbox" id="prof2fa" style="accent-color: var(--neon)" onchange="app.updateSettings()">
+             </div>
+             <h3 class="section-label mt-2">Transaction PIN</h3>
+             <div style="display: flex; gap: 10px;" class="mb-1">
+                 <input type="password" id="profPinPwd" class="neo-input" placeholder="Current Pwd"/>
+                 <input type="password" id="profNewPin" class="neo-input" placeholder="4-Digit PIN" maxlength="4"/>
+                 <button class="process-btn mini" onclick="app.updatePin()">SET PIN</button>
+             </div>
+          </div>
+          
+          <div class="card">
+             <h3 class="section-label">Transaction Preferences</h3>
+             <div class="mb-1">
+                 <small>Daily Limit ($)</small>
+                 <div style="display:flex; gap:10px;">
+                    <input type="number" id="profDailyLimit" class="neo-input" />
+                    <button class="scan-btn mini" onclick="app.updateSettings()">SAVE</button>
+                 </div>
+             </div>
+             <div class="mb-1">
+                 <small>Per-Transaction Limit ($)</small>
+                 <div style="display:flex; gap:10px;">
+                    <input type="number" id="profTxnLimit" class="neo-input" />
+                    <button class="scan-btn mini" onclick="app.updateSettings()">SAVE</button>
+                 </div>
+             </div>
+             <div style="display: flex; justify-content: space-between; align-items: center;" class="mb-1 list-row">
+                 <span class="txt" title="Blocks transactions 11 PM - 6 AM">Night Restriction Mode</span>
+                 <input type="checkbox" id="profNightRes" style="accent-color: var(--neon)" onchange="app.updateSettings()">
+             </div>
+             <div style="display: flex; justify-content: space-between; align-items: center;" class="mb-1 list-row">
+                 <span class="txt">Auto-Save Beneficiary</span>
+                 <input type="checkbox" id="profAutoSave" style="accent-color: var(--neon)" onchange="app.updateSettings()">
+             </div>
+          </div>
+          
+          <div class="card">
+             <h3 class="section-label">Device Fingerprints</h3>
+             <div id="deviceListContainer">
+                <!-- Dynamically populated -->
+             </div>
+          </div>
+          
+       </div>
+    </section>
+
+    <!-- 8. NOTIFICATIONS -->
+    <section id="view-user-notifications" class="page-view">
+       <h2 class="mb-2">SYSTEM ALERTS</h2>
+       <div class="card" id="userAlertsList">
+          <!-- Dynamically populated -->
+       </div>
+    </section>
+
+    <!-- ==================== ADMIN VIEWS ==================== -->
+
+    <!-- 9. ADMIN LOGIN -->
+    <section id="view-admin-login" class="page-view">
+      <div class="auth-card admin-auth-card">
+        <h2 class="auth-title danger-c">PRIME DIRECTIVE OVERRIDE</h2>
+        <p class="auth-sub">Authorized access only. Validate credential matrix before entry.</p>
+        <div class="auth-form">
+          <input type="text" placeholder="Admin Clearance Code" value="root" class="neo-input" />
+          <input type="password" placeholder="Passcode (Pre-Hashed Check)" value="admin" class="neo-input" />
+          <button class="process-btn neon-btn" onclick="app.login('admin')">BYPASS NEURAL LOCK</button>
+          <div class="auth-links">
+            <span onclick="app.navigate('user-login')">Return to Citizen Portal</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. ADMIN DASHBOARD -->
+    <section id="view-admin-dashboard" class="page-view">
+      <div class="admin-hero-panel mb-2">
+        <div>
+          <p class="section-label">PRIME OVERSIGHT SYSTEM</p>
+          <h2>SecureOps Command Center</h2>
+          <p class="muted">Monitor flagged transactions, risk exposures, and AI confidence in real-time.</p>
+        </div>
+        <div class="admin-hero-badges">
+          <span class="status-pill danger-c">Critical Watch</span>
+          <span class="status-pill neon">AI Live</span>
+        </div>
+      </div>
+       <div class="grid-4 mb-2">
+         <div class="card metric-card">
+           <div class="metric-label">Total Flagged</div>
+           <div class="metric-value danger-c" id="adminValFlagged">1,284</div>
+         </div>
+         <div class="card metric-card">
+           <div class="metric-label">Revenue at Risk</div>
+           <div class="metric-value warn" id="adminValRisk">$4.2M</div>
+         </div>
+         <div class="card metric-card">
+           <div class="metric-label">Approved Transactions</div>
+           <div class="metric-value blue" id="adminValApproved">140</div>
+         </div>
+         <div class="card metric-card">
+          <div class="metric-label">Detection Latency</div>
+          <div class="metric-value neon">12ms</div>
+        </div>
+      </div>
+      
+      <!-- Existing main grid design repurposed -->
+      <div class="grid-main">
+         <div class="card">
+            <h3 class="section-label">RECENT NEURAL FLAGS (TOP 5)</h3>
+             <table class="neo-table">
+               <thead><tr><th>TXN ID</th><th>RISK</th><th>ACTION</th></tr></thead>
+               <tbody id="adminRecentFlagsTbody">
+                  <!-- Dynamically injected -->
+               </tbody>
+             </table>
+         </div>
+         <div class="card fraud-wheel-card">
+           <div class="section-label">GLOBAL THREAT GAUGE</div>
+           <svg class="fraud-wheel" viewBox="0 0 120 120" width="110" height="110">
+             <circle cx="60" cy="60" r="50" fill="none" stroke="#1a3a5c" stroke-width="8"/>
+             <circle id="adminThreatArc" cx="60" cy="60" r="50" fill="none" stroke="#ff2d55" stroke-width="8"
+               stroke-dasharray="150 288" stroke-linecap="round"
+               transform="rotate(-90 60 60)"/>
+             <text x="60" y="56" text-anchor="middle" font-family="Share Tech Mono" font-size="18" fill="#ff2d55">52%</text>
+             <text x="60" y="70" text-anchor="middle" font-family="Rajdhani" font-size="9" fill="#4a7a9b" letter-spacing="2">THREAT</text>
+           </svg>
+         </div>
+      </div>
+    </section>
+
+    <!-- 11. ALL USERS -->
+    <section id="view-admin-users" class="page-view">
+       <h2 class="mb-2">GLOBAL IDENTITY REGISTRY</h2>
+       <div id="adminUserMessage" class="admin-message-box" style="display:none;"></div>
+       <div class="card table-card">
+         <div class="mb-1" style="display:flex; justify-content:space-between">
+            <input type="text" class="neo-input" placeholder="Search Identities..." style="width:300px; padding:6px;"/>
+            <button class="scan-btn mini" onclick="alert('Admin creation via DB proxy only. Pre-hashed + change flag.')">+ PROVISION ADMIN</button>
+         </div>
+         <table class="neo-table">
+            <thead><tr><th>CITIZEN ID</th><th>ROLE</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+            <tbody id="adminUsersTbody">
+               <!-- Dynamically injected -->
+            </tbody>
+         </table>
+       </div>
+    </section>
+
+    <div id="adminUserDetailsModal" class="modal-overlay" style="display:none;">
+      <div class="modal-content" style="max-width:520px;">
+        <h3 class="auth-title">USER DETAILS</h3>
+        <div class="mb-1" style="display:grid; gap:10px;">
+          <div><strong>Name:</strong> <span id="adminUserDetailsName"></span></div>
+          <div><strong>Email:</strong> <span id="adminUserDetailsEmail"></span></div>
+          <div><strong>Mobile:</strong> <span id="adminUserDetailsMobile"></span></div>
+          <div><strong>Age:</strong> <span id="adminUserDetailsAge"></span></div>
+          <div><strong>DOB:</strong> <span id="adminUserDetailsDob"></span></div>
+          <div><strong>City:</strong> <span id="adminUserDetailsCity"></span></div>
+          <div><strong>Registered On:</strong> <span id="adminUserDetailsCreatedAt"></span></div>
+          <div><strong>Status:</strong> <span id="adminUserDetailsStatus"></span></div>
+          <div><strong>Freeze Reason:</strong> <span id="adminUserDetailsReason"></span></div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:18px;">
+          <button class="scan-btn" onclick="app.closeAdminUserModal()">CLOSE</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="adminUserFreezeModal" class="modal-overlay" style="display:none;">
+      <div class="modal-content" style="max-width:520px;">
+        <h3 class="auth-title danger">FREEZE USER</h3>
+        <p class="muted mb-2">You are about to block this user from logging in.</p>
+        <div class="mb-1"><strong>Target:</strong> <span id="adminFreezeTargetEmail"></span></div>
+        <div id="adminFreezeModalMessage" class="admin-modal-message" style="display:none;"></div>
+        <label class="section-label" style="margin-top:12px;">Reason</label>
+        <select id="adminFreezeReason" class="neo-input" onchange="app.onAdminFreezeReasonChange()">
+          <option>Invalid logins</option>
+          <option>Fraudulent activities</option>
+          <option>Suspicious account takeover</option>
+          <option>Compliance violation</option>
+          <option>Multiple chargebacks</option>
+          <option>Other</option>
+        </select>
+        <div id="adminFreezeOtherReasonRow" style="display:none; margin-top:12px;">
+          <input type="text" id="adminFreezeOtherReason" class="neo-input" placeholder="Enter custom reason" />
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
+          <button type="button" class="scan-btn" onclick="app.closeAdminUserModal()">CANCEL</button>
+          <button type="button" class="process-btn danger" onclick="console.log('confirm block clicked'); app.submitAdminUserFreeze()">CONFIRM BLOCK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12. FLAGGED TRANSACTIONS -->
+    <section id="view-admin-flagged" class="page-view">
+       <h2 class="mb-2">QUARANTINE ZONE: FLAGGED TRANSACTIONS</h2>
+       <div class="grid-main">
+          <div class="card" id="adminFlaggedListContainer">
+             <!-- Dynamically injected -->
+          </div>
+          <div class="card">
+             <h3 class="section-label">INSPECTION BAY</h3>
+             <p class="muted">Select a transaction to parse heuristic footprint.</p>
+          </div>
+       </div>
+    </section>
+
+    <!-- 13. AI MODEL PANEL -->
+    <section id="view-admin-ai-panel" class="page-view">
+       <h2 class="mb-2">NEURAL ENGINE CALIBRATION</h2>
+       <div class="grid-main">
+          <div class="card">
+            <div class="section-label">AI MODEL PERFORMANCE</div>
+            <div class="perf-list">
+              <div class="perf-row"><span class="perf-label">XGBoost</span><div class="perf-track"><div class="perf-fill neon-fill" style="width:97%"></div></div><span class="perf-pct">97.2%</span></div>
+              <div class="perf-row"><span class="perf-label">LSTM</span><div class="perf-track"><div class="perf-fill blue-fill" style="width:94%"></div></div><span class="perf-pct">94.1%</span></div>
+              <div class="perf-row"><span class="perf-label">Isolation F.</span><div class="perf-track"><div class="perf-fill warn-fill" style="width:91%"></div></div><span class="perf-pct">91.8%</span></div>
+              <div class="perf-row"><span class="perf-label">Autoencoder</span><div class="perf-track"><div class="perf-fill purple-fill" style="width:88%"></div></div><span class="perf-pct">88.4%</span></div>
+            </div>
+            <div class="agg-row"><span class="perf-label">AGGREGATE CONFIDENCE</span><span class="val neon">94.2%</span></div>
+          </div>
+          <div class="card terminal-card">
+              <div class="terminal-header">
+                <div class="terminal-title">MODEL_TRAINING_LOG</div>
+                <div class="live-tag">LIVE</div>
+              </div>
+              <div class="terminal-body">
+                <div class="terminal-inner">
+                   <div class="log-line log-info">Epoch 102/500 - Loss: 0.0412</div>
+                   <div class="log-line log-ok">Validating weights... OK</div>
+                   <div class="log-line log-sys">Adjusting gradient decay...</div>
+                </div>
+              </div>
+          </div>
+       </div>
+    </section>
+
+    <!-- 14. FRAUD REPORTS -->
+    <section id="view-admin-fraud-reports" class="page-view">
+       <h2 class="mb-2">ANALYTICS & COMPLIANCE</h2>
+       <div class="card mb-2">
+          <h3 class="section-label">7-DAY THREAT VECTOR MAPPING</h3>
+          <div class="bar-chart">
+            <div class="bcol"><div class="bbar d" style="height:20%"></div><div class="blabel">M</div></div>
+            <div class="bcol"><div class="bbar d" style="height:35%"></div><div class="blabel">T</div></div>
+            <div class="bcol"><div class="bbar d" style="height:60%"></div><div class="blabel">W</div></div>
+            <div class="bcol"><div class="bbar d" style="height:45%"></div><div class="blabel">T</div></div>
+            <div class="bcol"><div class="bbar d" style="height:80%"></div><div class="blabel">F</div></div>
+            <div class="bcol"><div class="bbar d" style="height:30%"></div><div class="blabel">S</div></div>
+            <div class="bcol"><div class="bbar d" style="height:50%"></div><div class="blabel">S</div></div>
+          </div>
+       </div>
+       <div class="grid-main">
+          <div class="card"><button class="process-btn">EXPORT CSV REPORT</button></div>
+          <div class="card"><button class="scan-btn">ARCHIVE DATABASE</button></div>
+       </div>
+    </section>
+
+  </main>
+
+  <!-- STATUS BAR -->
+  <footer class="statusbar">
+    <span>SYSTEM STATUS: <span class="ok">OPTIMAL</span></span>
+    <span>ENCRYPTION: <span class="ok">AES-256</span></span>
+    <span>NEURAL UPTIME: <span class="ok">99.5%</span></span>
+    <span id="clockBar">© 2026 SECUREWITH.AI PLATFORM</span>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
